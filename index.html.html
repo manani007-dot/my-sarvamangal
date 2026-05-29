@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Home Cost Estimator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=DM+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#f4f2ed;--card:#fff;--border:#e0ddd5;--muted:#777;--text:#1a1a1a;
+  --shadow:0 2px 16px rgba(0,0,0,0.08);
+  /* electric green */
+  --eg:#1a6b3c;--eg2:#e6f4ec;
+  /* furniture brown */
+  --fb:#8b5e3c;--fb2:#f5efe6;--fbd:#2c2218;--fba:#c49a6c;
+  /* combined purple */
+  --cb:#4a3580;--cb2:#ede9fb;
+  /* POP teal */
+  --pc:#0e7490;--pc2:#e0f2fe;--pcd:#0c4a6e;--pca:#38bdf8;
+  --paint:#c2410c;--paint2:#fff7ed;
+  --hh:58px;--bn:62px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overscroll-behavior:none}
+
+/* ══ TOP NAV ══ */
+.topnav{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--fbd);color:#f5efe6;
+  display:flex;align-items:stretch;z-index:300;
+  box-shadow:0 2px 12px rgba(0,0,0,0.25);
+}
+.topnav-brand{
+  padding:0 18px;display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;
+}
+.topnav-brand .t{font-family:'Playfair Display',serif;font-size:15px;line-height:1.1}
+.topnav-brand .s{font-size:10px;opacity:.55;margin-top:2px}
+.tab-row{display:flex;flex:1;overflow-x:auto}
+.tab-row::-webkit-scrollbar{display:none}
+.tnav{
+  display:flex;align-items:center;gap:7px;
+  padding:0 18px;border-bottom:3px solid transparent;
+  background:none;border-top:none;border-left:none;border-right:none;
+  color:rgba(245,239,230,0.5);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;
+}
+.tnav:hover{color:rgba(245,239,230,0.8)}
+.tnav.e.active{color:#6de8a0;border-bottom-color:#6de8a0}
+.tnav.f.active{color:var(--fba);border-bottom-color:var(--fba)}
+.tnav.s.active{color:#c9b8ff;border-bottom-color:#c9b8ff}
+.tnav.p.active{color:#7dd3fc;border-bottom-color:#7dd3fc}
+.tbadge{
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+  font-family:'DM Mono',monospace;
+}
+.tbadge.e{background:#1a6b3c;color:#fff}
+.tbadge.f{background:var(--fba);color:var(--fbd)}
+.tbadge.s{background:#4a3580;color:#fff}
+.tbadge.p{background:var(--pc);color:#fff}
+.tnav.pt.active{color:#f4a261;border-bottom-color:#f4a261}
+.tbadge.pt{background:#c2410c;color:#fff}
+.hdr-actions{display:flex;align-items:center;gap:6px;padding:0 12px;border-left:1px solid rgba(255,255,255,0.1)}
+.hbtn{
+  background:rgba(255,255,255,0.12);color:#f5efe6;
+  border:1px solid rgba(255,255,255,0.22);
+  padding:6px 11px;border-radius:8px;cursor:pointer;
+  font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;
+  white-space:nowrap;transition:background .15s;
+}
+.hbtn:active{background:rgba(255,255,255,0.25)}
+.hbtn.red{background:rgba(192,57,43,0.4);border-color:rgba(192,57,43,0.5)}
+
+/* ══ TAB PAGES ══ */
+.tab-page{display:none;position:fixed;top:var(--hh);bottom:var(--bn);left:0;right:0;overflow:hidden}
+.tab-page.active{display:flex}
+.toast{position:fixed;bottom:calc(var(--bn)+14px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+/* Desktop 1025px+ */
+@media(min-width:1025px){
+  .tab-page{bottom:0}
+  .bot-nav,.total-badge{display:none!important}
+}
+/* iPad / Tablet 769–1024px */
+@media(min-width:769px) and (max-width:1024px){
+  :root{--hh:54px;--bn:58px}
+  .tab-page{bottom:0}
+  .bot-nav{display:flex!important;height:var(--bn)}
+  .total-badge{display:none!important}
+  .toast{bottom:calc(var(--bn)+12px)}
+  .tnav{font-size:12px;padding:0 13px;gap:5px}
+  .tbadge{font-size:9px;padding:2px 5px}
+  .topnav-brand .t{font-size:13px}
+  .topnav-brand .s{font-size:9px}
+  .hbtn{font-size:11px;padding:5px 9px}
+  .e-sidebar{width:165px;padding:10px 6px}
+  .room-btn{padding:11px 9px;font-size:12.5px;min-height:44px}
+  .e-main{padding:14px 16px}
+  .pop-inner{padding:16px 14px;max-width:100%}
+  .pop-row{grid-template-columns:1fr 82px 82px 82px 82px 30px;gap:6px;padding:10px 10px}
+  .pop-room-body{padding:12px 14px}
+  .pop-fg input[type="number"]{font-size:14px;padding:8px 7px}
+  .f-inner{padding:16px 14px;max-width:100%}
+  .fg-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px 10px}
+  .fg input[type="number"],.fg select{padding:8px 8px;font-size:14px}
+  .fur-item{padding:12px 13px}
+  .rates-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+  .sec-head{padding:14px 16px}
+  .sec-body{padding:6px 16px 16px}
+  .sum-wrap{padding:16px 14px 80px;max-width:100%}
+  .grand-box{padding:18px 20px}
+  .split-table td,.split-table th{padding:9px 12px}
+  .overlay{align-items:center}
+  .modal{border-radius:16px;max-width:620px;margin:auto;max-height:90vh}
+  .modal-drag{display:none}
+  .bn-btn{font-size:10px}
+  .bn-icon{font-size:22px}
+  .misc-row{grid-template-columns:1fr 80px 110px 30px}
+  .mrow{grid-template-columns:1fr 80px 70px 55px 70px 32px}
+  .del-x{opacity:1;right:-7px;top:-7px}
+}
+
+/* ══ ELECTRIC SECTION ══ */
+/* Sidebar */
+.e-sidebar{
+  width:200px;flex-shrink:0;background:var(--card);
+  border-right:1px solid var(--border);
+  overflow-y:auto;padding:12px 8px;display:flex;flex-direction:column;gap:2px;
+}
+.slbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.9px;padding:2px 8px 8px}
+.room-btn{
+  width:100%;display:flex;align-items:center;gap:8px;
+  padding:9px 10px;border:none;background:transparent;border-radius:8px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);text-align:left;transition:all .12s;
+}
+.room-btn:hover{background:var(--bg)}
+.room-btn.active{background:var(--eg2);color:var(--eg);font-weight:600}
+.room-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.room-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-badge{background:var(--eg);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:20px;display:none;flex-shrink:0;font-family:'DM Mono',monospace}
+.room-btn.has-items .room-badge{display:block}
+.room-del{width:20px;height:20px;border-radius:50%;border:1px solid transparent;background:transparent;color:transparent;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.room-btn:hover .room-del{color:var(--red);border-color:#f5c6c6;background:#fff2f0}
+.room-del:hover{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important}
+/* mobile room delete on card */
+.rc-del{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--red);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);transition:all .12s}
+.rc-del:active{background:var(--red);color:#fff;border-color:var(--red)}
+.dash-btn{width:100%;padding:8px;border:1.5px dashed var(--border);background:transparent;border-radius:8px;cursor:pointer;font-size:12px;color:var(--muted);font-family:'DM Sans',sans-serif;margin-top:4px;transition:all .12s}
+.dash-btn:hover{border-color:var(--eg);color:var(--eg);background:var(--eg2)}
+
+/* Main content */
+.e-main{flex:1;overflow-y:auto;padding:16px;min-width:0}
+.room-heading{font-size:20px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* Category blocks */
+.cat-block{margin-bottom:4px}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:10px 0 6px;border-bottom:1.5px solid var(--border);margin-bottom:6px}
+.cat-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.cat-add-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border:1px solid var(--eg);background:var(--eg2);color:var(--eg);border-radius:6px;cursor:pointer;font-size:11.5px;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .12s}
+.cat-add-btn:active{background:var(--eg);color:#fff}
+
+/* Item rows */
+.item-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;position:relative;transition:box-shadow .12s}
+.item-row:hover{box-shadow:var(--shadow)}
+.item-row:hover .del-x{opacity:1}
+.del-x{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--red);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;box-shadow:0 1px 4px rgba(0,0,0,0.1);z-index:2}
+.del-x:hover{background:var(--red);color:#fff;border-color:var(--red)}
+@media(max-width:600px){.del-x{opacity:1;right:-7px;top:-7px}}
+.iname{font-size:13px;font-weight:500;flex:1;min-width:0}
+.imeta{font-size:10.5px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace}
+
+/* Qty +/- controls */
+.qc{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.qb{width:30px;height:30px;border:1px solid var(--border);border-radius:7px;background:var(--bg);cursor:pointer;font-size:18px;color:var(--text);display:flex;align-items:center;justify-content:center;transition:all .1s;font-family:'DM Sans',sans-serif;min-width:30px}
+.qb:active{background:var(--eg2);border-color:var(--eg);color:var(--eg)}
+.qv{width:28px;text-align:center;font-size:14px;font-weight:600;font-family:'DM Mono',monospace}
+.rcost{min-width:62px;text-align:right;font-size:12px;font-weight:600;color:var(--eg);font-family:'DM Mono',monospace;flex-shrink:0}
+.rcost.zero{color:var(--border)}
+.new-cat-wrap{padding:14px 0 4px}
+
+/* Right summary panel */
+.e-right{width:220px;flex-shrink:0;background:var(--card);border-left:1px solid var(--border);overflow-y:auto;padding:14px}
+.rp-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.sbox{background:var(--bg);border-radius:9px;padding:11px 13px;margin-bottom:7px}
+.sbox .sl{font-size:10.5px;color:var(--muted);font-weight:500;margin-bottom:2px}
+.sbox .sv{font-size:17px;font-weight:600;font-family:'DM Mono',monospace}
+.sbox.grn{background:var(--eg2)}.sbox.grn .sv{color:var(--eg)}
+.sbox.brn{background:var(--fb2)}.sbox.brn .sv{color:var(--fb)}
+.sbox.prp{background:var(--cb2)}.sbox.prp .sv{color:var(--cb)}
+.sbox.teal{background:var(--pc2)}.sbox.teal .sv{color:var(--pc)}
+.rbrk{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)}
+.rbrk span:last-child{font-family:'DM Mono',monospace;color:var(--text);font-weight:500}
+
+/* POP Ceiling Section */
+.pop-wrap{flex:1;overflow-y:auto;padding:0 0 80px}
+.pop-inner{max-width:960px;margin:0 auto;padding:20px 16px}
+.pop-rates-panel{background:var(--pcd);color:#e0f2fe;border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.pop-rates-panel h3{font-family:'Playfair Display',serif;font-size:13px;color:var(--pca);margin-bottom:10px}
+.pop-room-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.pop-room-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#f0f9ff;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.pop-room-head h2{font-family:'Playfair Display',serif;font-size:14px;color:var(--pc);display:flex;align-items:center;gap:8px}
+.pop-room-ico{width:22px;height:22px;border-radius:6px;background:var(--pc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.pop-room-body{padding:14px 18px}
+.pop-row{display:grid;grid-template-columns:1fr 90px 90px 90px 90px 26px;gap:8px;align-items:end;margin-bottom:10px;background:var(--bg);border-radius:9px;padding:10px 12px;border:1px solid var(--border)}
+.pop-row-label{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.pop-cost-badge{font-size:13px;font-weight:700;color:var(--pc);font-family:'DM Mono',monospace;text-align:right;min-width:72px}
+.pop-fg label{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:3px}
+.pop-fg input[type="number"]{width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--card);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--pcd);outline:none;transition:border-color .15s}
+.pop-fg input:focus{border-color:var(--pca)}
+.pop-add-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:7px 14px;background:var(--pc);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.pop-add-btn:hover{background:var(--pcd)}
+.pop-add-room-btn{width:100%;padding:12px;border:1.5px dashed var(--border);background:transparent;border-radius:10px;cursor:pointer;font-size:13px;color:var(--muted);font-family:'DM Sans',sans-serif;margin-top:4px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:6px}
+.pop-add-room-btn:hover{border-color:var(--pc);color:var(--pc);background:var(--pc2)}
+.pop-section-total{font-size:12px;font-weight:600;color:var(--pc);font-family:'DM Mono',monospace;padding:8px 18px 12px;background:var(--pc2);border-top:1px solid #bae6fd;text-align:right}
+
+.room-heading{font-size:18px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ══ FURNITURE SECTION ══ */
+.f-wrap{flex:1;overflow-y:auto;padding:0 0 80px}
+.f-inner{max-width:960px;margin:0 auto;padding:20px 16px}
+
+.rates-panel{background:var(--fbd);color:#f5efe6;border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.rates-panel h3{font-family:'Playfair Display',serif;font-size:13px;color:var(--fba);margin-bottom:10px}
+.rates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px 12px}
+.rates-grid label{font-size:10px;font-weight:600;color:#a09080;letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:3px}
+.rates-grid input{background:#3d2e1e!important;border:1.5px solid #5a4535!important;color:#f5f0e8!important;border-radius:7px;padding:6px 9px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.rates-grid input:focus{border-color:var(--fba)!important}
+
+.sec-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#f8f4ee;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.sec-head h2{font-family:'Playfair Display',serif;font-size:14px;color:var(--fb);display:flex;align-items:center;gap:8px}
+.sec-ico{width:22px;height:22px;border-radius:6px;background:var(--fb);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.chev{color:var(--fba);font-size:13px;transition:transform .2s}
+.coll .chev{transform:rotate(-90deg)}
+.coll .sec-body{display:none}
+.sec-body{padding:4px 18px 14px}
+.sec-meta{font-size:11px;color:var(--muted);font-weight:400;margin-left:2px}
+
+.fur-item{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin-top:10px}
+.fur-item-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+.finame{flex:1;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--fbd);border:none;background:transparent;outline:none;border-bottom:1.5px solid var(--border);padding:2px 4px;min-width:100px}
+.finame:focus{border-color:var(--fba)}
+.frm{background:#fce8e8;color:var(--red);border:1px solid #f5c6c6;border-radius:6px;width:24px;height:24px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.frm:hover{background:#f5c6c6}
+
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:7px 9px}
+.fg label{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:3px}
+.fg input[type="number"],.fg select{width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--card);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--fbd);outline:none;transition:border-color .15s}
+.fg input:focus,.fg select:focus{border-color:var(--fba)}
+
+.sqft-bar{font-size:11px;color:var(--muted);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;background:var(--card);padding:5px 9px;border-radius:6px}
+.sqft-bar b{color:var(--fb)}
+.sub-sec{margin-top:10px;border-top:1px dashed var(--border);padding-top:8px}
+.sub-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.shelf-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;background:#f9f5ee;border-radius:7px;padding:6px 9px}
+.shelf-row .fg{flex:1;min-width:55px}
+.shelf-row .frm{width:20px;height:20px;font-size:10px}
+.tandem-row{background:#f0ebe0;border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.tandem-row .fg{min-width:95px;flex:1}
+.chk{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer}
+.chk input{accent-color:var(--fb);cursor:pointer}
+
+.fadd{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:7px 12px;background:var(--fb);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.fadd:hover{background:#7a5133}
+.fadd.sm{background:#f8f4ee;color:var(--fb);border:1.5px solid var(--border);font-size:11px;padding:4px 10px;margin-top:6px}
+.fadd.sm:hover{background:var(--border)}
+
+.misc-row{display:grid;grid-template-columns:1fr 70px 100px 26px;gap:7px;align-items:end;margin-bottom:7px;background:var(--bg);border-radius:8px;padding:8px 10px;border:1px solid var(--border)}
+.misc-row input[type="text"],.misc-row input[type="number"]{padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--card);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--fbd);outline:none;width:100%}
+.misc-row input:focus{border-color:var(--fba)}
+.misc-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+
+/* ══ COMBINED SUMMARY PAGE ══ */
+.sum-wrap{flex:1;overflow-y:auto;padding:20px 16px 80px;max-width:900px;margin:0 auto;width:100%}
+
+.sum-section{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+.sum-sec-head{background:#f8f4ee;padding:11px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sum-sec-head.eg{background:var(--eg2)}
+.sum-sec-head h3{font-family:'Playfair Display',serif;font-size:13px;color:var(--fb);display:flex;align-items:center;gap:7px}
+.sum-sec-head.eg h3{color:var(--eg)}
+.sec-tot{font-size:14px;font-weight:700;font-family:'DM Mono',monospace}
+.sec-tot.eg{color:var(--eg)}
+.sec-tot.fb{color:var(--fb)}
+.sum-tbl{width:100%;border-collapse:collapse}
+.sum-tbl td{padding:8px 18px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:top}
+.sum-tbl tr:last-child td{border-bottom:none}
+.sum-tbl td:nth-child(2){color:var(--muted);font-size:11px;text-align:center}
+.sum-tbl td:last-child{text-align:right;font-weight:600;font-family:'DM Mono',monospace;white-space:nowrap}
+.sub-row td{background:#faf8f3}
+.sub-row td:first-child{color:var(--muted);padding-left:32px;font-size:11px}
+
+.grand-box{background:var(--fbd);color:#f5efe6;border-radius:12px;padding:22px 24px;box-shadow:var(--shadow);margin-bottom:16px}
+.grand-box h2{font-family:'Playfair Display',serif;font-size:16px;color:var(--fba);margin-bottom:14px}
+.grand-tbl{width:100%;border-collapse:collapse}
+.grand-tbl td{padding:7px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.grand-tbl td:first-child{color:#b0a090}
+.grand-tbl td:last-child{text-align:right;font-weight:600;color:#f5efe6;font-family:'DM Mono',monospace}
+.grand-tbl .gsub td{border-top:1px solid #5a4535;border-bottom:none;padding-top:10px;font-weight:700;color:#f5efe6}
+.grand-tbl .gtot td{border-top:2px solid var(--fba);border-bottom:none;padding-top:12px;font-size:17px;font-weight:700;color:var(--fba)}
+.grand-tbl .gsec td{font-size:10px;color:#7a6552;text-transform:uppercase;letter-spacing:.07em;border-bottom:none;padding-top:8px;padding-bottom:2px}
+.grand-meta{font-size:10px;color:#7a6552;margin-top:1px}
+
+/* ══ MOBILE ══ */
+.mob-view{display:none;flex:1;overflow-y:auto;padding:12px}
+.mob-view.active{display:block}
+.rooms-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.room-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:all .15s;position:relative}
+.room-card.active{border-color:var(--eg);background:var(--eg2)}
+.rc-icon{font-size:26px;margin-bottom:5px}
+.rc-name{font-size:13px;font-weight:500}
+.rc-total{font-size:11px;font-weight:600;color:var(--eg);font-family:'DM Mono',monospace;margin-top:3px}
+.rc-del{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);background:#fff;color:var(--red);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);transition:all .12s}
+.rc-del:active{background:var(--red);color:#fff}
+.add-room-card{background:transparent;border:1.5px dashed var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:all .15s}
+.add-room-card:active{border-color:var(--eg);background:var(--eg2)}
+.mob-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.mob-sum-grid .sbox{margin-bottom:0}
+.mob-sum-grid .sbox.full{grid-column:1/-1}
+
+.bot-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bn);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:stretch;z-index:300}
+.bn-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:9px;color:var(--muted);padding:5px 0;transition:color .12s}
+.bn-btn.active{color:var(--eg);font-weight:600}
+.bn-btn.active.fb{color:var(--fb)}
+.bn-btn.active.cb{color:var(--cb)}
+.bn-icon{font-size:19px;line-height:1}
+.total-badge{position:fixed;bottom:calc(var(--bn)+8px);right:12px;background:var(--cb);color:#fff;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;padding:5px 12px;border-radius:20px;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+
+/* ══ MODALS ══ */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:18px 18px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.18);animation:slideUp .22s ease}
+@keyframes slideUp{from{transform:translateY(60px);opacity:.5}to{transform:none;opacity:1}}
+.modal-drag{width:40px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0}
+.modal-head{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:1;border-bottom:1px solid var(--border)}
+.modal-head h2{font-size:15px;font-weight:600}
+.close-x{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.mbody{padding:14px 18px 32px}
+.flbl{font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block}
+.finp{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:12px}
+.finp:focus{outline:none;border-color:var(--eg);background:#fff}
+.fsel{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);margin-bottom:12px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23777' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:30px}
+.fsel:focus{outline:none;border-color:var(--eg);background-color:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.g2 .finp,.g2 .fsel,.g3 .finp{margin-bottom:0}
+.savebtn{width:100%;padding:13px;background:var(--eg);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:14px;transition:opacity .12s}
+.savebtn:active{opacity:.85}
+.add-box{background:var(--eg2);border:1px solid #b4d9c4;border-radius:12px;padding:14px;margin-bottom:18px}
+.add-box-title{font-size:13px;font-weight:600;color:var(--eg);margin-bottom:12px}
+.addbtn{padding:9px 18px;background:var(--eg);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .12s}
+.addbtn:active{opacity:.85}
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.mtab{padding:5px 12px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;background:var(--bg);color:var(--muted);transition:all .12s;white-space:nowrap}
+.mtab.active{background:var(--eg);color:#fff;border-color:var(--eg)}
+.mrow{display:grid;grid-template-columns:1fr 80px 70px 55px 70px 32px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.mrow:last-child{border-bottom:none}
+.mrow.mhdr{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:8px}
+.mpinp{width:100%;padding:5px 7px;border:1px solid var(--border);border-radius:7px;font-family:'DM Mono',monospace;font-size:12px;background:var(--bg);color:var(--text);text-align:right}
+.mpinp:focus{outline:none;border-color:var(--eg);background:#fff}
+.del-row{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--red);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0}
+.del-row:active{background:var(--red);color:#fff;border-color:var(--red)}
+.epicker{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 12px}
+.ep{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:17px;cursor:pointer;transition:all .1s}
+.ep.sel{border-color:var(--eg);background:var(--eg2)}
+/* ══ PROJECT SWITCHER ══ */
+.proj-bar{
+  position:fixed;top:var(--hh);left:0;right:0;height:38px;
+  background:#3d2e1e;border-bottom:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;gap:0;z-index:290;overflow-x:auto;
+  padding:0 8px;
+}
+.proj-bar::-webkit-scrollbar{display:none}
+.proj-tab{
+  display:flex;align-items:center;gap:5px;
+  padding:0 12px;height:100%;border:none;
+  background:transparent;color:rgba(245,239,230,0.45);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;
+  transition:all .12s;flex-shrink:0;
+}
+.proj-tab:hover{color:rgba(245,239,230,0.8)}
+.proj-tab.active{color:var(--fba);border-bottom-color:var(--fba)}
+.proj-tab .proj-del{
+  width:14px;height:14px;border-radius:50%;
+  background:rgba(255,255,255,0.12);color:rgba(245,239,230,0.6);
+  border:none;cursor:pointer;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .1s;flex-shrink:0;
+}
+.proj-tab .proj-del:hover{background:var(--red);color:#fff}
+.proj-add{
+  padding:0 10px;height:100%;border:none;background:transparent;
+  color:rgba(245,239,230,0.35);font-size:18px;cursor:pointer;flex-shrink:0;
+  transition:color .12s;
+}
+.proj-add:hover{color:var(--fba)}
+/* shift body down by project bar */
+.tab-page{top:calc(var(--hh) + 38px)!important}
+
+/* ══ NOTES FIELD ══ */
+.notes-field{
+  width:100%;padding:7px 10px;border:1px solid var(--border);
+  border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;
+  background:#fffdf8;color:var(--text);resize:none;
+  margin-top:7px;line-height:1.4;transition:border-color .12s;
+}
+.notes-field:focus{outline:none;border-color:var(--fba);background:#fff}
+.notes-field::placeholder{color:#bbb}
+
+/* ══ PAINTING TAB ══ */
+.paint-wrap{flex:1;overflow-y:auto;padding:0 0 80px}
+.paint-inner{max-width:640px;margin:0 auto;padding:20px 16px}
+.paint-rates-panel{background:#7c2d12;color:#fff7ed;border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.paint-rates-panel h3{font-family:'Playfair Display',serif;font-size:13px;color:#fdba74;margin-bottom:4px}
+.paint-section-card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;overflow:hidden}
+.paint-section-head{background:#fff7ed;padding:12px 18px;border-bottom:1px solid #fed7aa;display:flex;justify-content:space-between;align-items:center}
+.paint-section-head h2{font-family:'Playfair Display',serif;font-size:14px;color:#c2410c;display:flex;align-items:center;gap:8px}
+.paint-section-ico{width:22px;height:22px;border-radius:6px;background:#c2410c;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.paint-section-total{font-size:13px;font-weight:700;color:#c2410c;font-family:'DM Mono',monospace}
+.paint-section-body{padding:14px 18px}
+.paint-item-row{display:grid;grid-template-columns:1fr 130px 26px;gap:8px;align-items:end;margin-bottom:8px;background:var(--bg);border-radius:9px;padding:10px 12px;border:1px solid var(--border)}
+.paint-item-row .paint-fg label{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:3px}
+.paint-item-row .paint-fg input{width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;background:var(--card);font-family:'DM Sans',sans-serif;font-size:13px;color:#7c2d12;outline:none;transition:border-color .15s}
+.paint-item-row .paint-fg input:focus{border-color:#f97316}
+.paint-add-btn{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:7px 14px;background:#c2410c;color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.paint-add-btn:hover{background:#9a3412}
+.paint-section-footer{font-size:12px;font-weight:600;color:#c2410c;font-family:'DM Mono',monospace;padding:8px 18px 12px;background:#fff7ed;border-top:1px solid #fed7aa;text-align:right}
+.paint-grand{background:#7c2d12;border-radius:16px;padding:20px 24px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,0.18)}
+.paint-add-section-btn{width:100%;padding:12px;border:1.5px dashed #fed7aa;background:transparent;border-radius:10px;cursor:pointer;font-size:13px;color:#c2410c;font-family:'DM Sans',sans-serif;margin-top:4px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:6px}
+.paint-add-section-btn:hover{border-color:#c2410c;background:#fff7ed}
+@media(max-width:768px){.paint-item-row{grid-template-columns:1fr 110px 26px}}
+
+/* ══ QUICK TOTAL ══ */
+.qt-wrap{flex:1;overflow-y:auto;padding:24px 16px 80px;display:flex;flex-direction:column;align-items:center;gap:0}
+.qt-inner{width:100%;max-width:520px}
+.qt-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--fbd);margin-bottom:6px;text-align:center}
+.qt-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:24px}
+.qt-card{border-radius:14px;padding:20px 22px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 18px rgba(0,0,0,0.09);border:1px solid transparent}
+.qt-card.pop{background:var(--pc2);border-color:#bae6fd}
+.qt-card.elec{background:var(--eg2);border-color:#bbf7d0}
+.qt-card.furn{background:var(--fb2);border-color:#e8d5be}
+.qt-card.color{background:#fdf4ff;border-color:#e9d5ff}
+.qt-card-left{display:flex;align-items:center;gap:12px}
+.qt-card-ico{font-size:26px;width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qt-card-ico.pop{background:var(--pc);color:#fff}
+.qt-card-ico.elec{background:var(--eg);color:#fff}
+.qt-card-ico.furn{background:var(--fb);color:#fff}
+.qt-card-ico.color{background:#9333ea;color:#fff}
+.qt-card-label{font-size:13px;font-weight:600;color:var(--text)}
+.qt-card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.qt-card-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace}
+.qt-card-val.pop{color:var(--pc)}
+.qt-card-val.elec{color:var(--eg)}
+.qt-card-val.furn{color:var(--fb)}
+.qt-card-val.color{color:#9333ea}
+.qt-divider{height:1px;background:var(--border);margin:6px 0 20px}
+.qt-grand{background:var(--fbd);border-radius:16px;padding:22px 26px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,0.18)}
+.qt-grand-label{font-family:'Playfair Display',serif;font-size:15px;color:var(--fba)}
+.qt-grand-val{font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:#fff}
+.qt-color-input{background:rgba(255,255,255,0.12);border:1.5px solid #e9d5ff;border-radius:8px;padding:7px 10px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;margin-top:4px;transition:border-color .15s}
+.qt-color-input:focus{border-color:#9333ea}
+.qt-color-section{background:#fff;border:1px solid #e9d5ff;border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+.qt-color-title{font-size:11px;font-weight:700;color:#9333ea;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.qt-color-row{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:end;margin-bottom:7px}
+.qt-color-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:3px}
+.qt-color-inp{width:100%;padding:7px 9px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;background:var(--bg)}
+.qt-color-inp:focus{border-color:#9333ea}
+
+/* ══ PER-ROOM SPLIT TABLE ══ */
+.split-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:0}
+.split-table th{background:var(--fbd);color:var(--fba);padding:8px 14px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.split-table th:last-child,.split-table td:last-child{text-align:right}
+.split-table td{padding:8px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.split-table tr:last-child td{border-bottom:none}
+.split-table tr:nth-child(even) td{background:#faf8f4}
+.split-table .tot-row td{background:var(--fbd);color:#f5efe6;font-weight:700;font-family:'DM Mono',monospace}
+.split-table .tot-row td:first-child{color:var(--fba)}
+.room-dot-e{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--eg);margin-right:4px;vertical-align:middle}
+.room-dot-f{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--fb);margin-right:4px;vertical-align:middle}
+.room-dot-p{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pc);margin-right:4px;vertical-align:middle}
+
+  .tab-page{bottom:0}.modal{border-radius:14px;max-width:560px;margin:auto;max-height:88vh}.overlay{align-items:center}.modal-drag{display:none}
+  .e-sidebar{display:flex!important}
+  .e-main{display:block!important;flex:1}
+  .e-right{display:block!important}
+  .mob-view{display:none!important}
+  .toast{bottom:16px}
+}
+@media(min-width:769px) and (max-width:1024px){
+  /* iPad: show desktop layout but with bottom nav */
+  .e-sidebar{display:flex!important}
+  .e-main{display:block!important;flex:1}
+  .e-right{display:block!important}
+  .mob-view{display:none!important}
+}
+/* iPad portrait (768–900px): POP row wraps to 2 rows */
+@media(min-width:769px) and (max-width:900px){
+  .pop-row{grid-template-columns:1fr 1fr 1fr 80px 30px;gap:6px}
+  .pop-row>:nth-child(1){grid-column:1/4}
+  .e-sidebar{width:150px}
+  .tnav{padding:0 10px;font-size:11px}
+}
+@media(max-width:768px){
+  .e-sidebar,.e-main,.e-right{display:none!important}
+  .mob-view{display:none}
+  .mob-view.active{display:block}
+  .g2,.g3{grid-template-columns:1fr}
+  .mrow{grid-template-columns:1fr 60px 55px 45px 55px 26px;gap:4px}
+  /* POP rows stack on phone */
+  .pop-row{grid-template-columns:1fr 1fr;gap:7px}
+  .pop-row>:nth-child(1){grid-column:1/-1}
+  .pop-row>:nth-child(5){grid-column:1/3}
+  .pop-row>:nth-child(6){grid-column:3/4;justify-self:end}
+  /* misc row compact */
+  .misc-row{grid-template-columns:1fr 65px 90px 26px;gap:5px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOP NAV ══ -->
+<div class="topnav">
+  <div class="topnav-brand">
+    <div class="t">🏠 Home Estimator</div>
+    <div class="s">Interior Cost Calculator</div>
+  </div>
+  <div class="tab-row">
+    <button class="tnav p active" onclick="switchTab('pop',this)">
+      🏗 POP Ceiling <span class="tbadge p" id="badge-p">₹0</span>
+    </button>
+    <button class="tnav e" onclick="switchTab('elec',this)">
+      ⚡ Electrical <span class="tbadge e" id="badge-e">₹0</span>
+    </button>
+    <button class="tnav f" onclick="switchTab('furn',this)">
+      🪑 Furniture <span class="tbadge f" id="badge-f">₹0</span>
+    </button>
+    <button class="tnav pt" onclick="switchTab('paint',this)">
+      🎨 Painting <span class="tbadge pt" id="badge-pt">₹0</span>
+    </button>
+    <button class="tnav s" onclick="switchTab('summ',this)">
+      📊 Summary <span class="tbadge s" id="badge-s">₹0</span>
+    </button>
+    <button class="tnav" id="tnav-qt" onclick="switchTab('qt',this)" style="color:rgba(245,239,230,0.5)">
+      💰 Quick Total <span class="tbadge" id="badge-qt" style="background:#9333ea;color:#fff">₹0</span>
+    </button>
+  </div>
+  <div class="hdr-actions">
+    <button class="hbtn" onclick="openManage()" id="btn-manage">⚙️</button>
+    <button class="hbtn" onclick="openExport()">📄</button>
+    <button class="hbtn red" onclick="resetAll()">🗑</button>
+  </div>
+</div>
+
+<!-- ══ PROJECT BAR ══ -->
+<div class="proj-bar" id="proj-bar"></div>
+
+<!-- ══ POP CEILING TAB ══ -->
+<div class="tab-page active" id="tab-pop">
+  <div class="pop-wrap">
+    <div class="pop-inner">
+      <div class="pop-rates-panel">
+        <h3>⚙ POP Ceiling Rate Configuration</h3>
+        <div class="rates-grid">
+          <div><label style="color:#94a3b8">Rate / Sqft (₹)</label><input type="number" id="pop_rate" value="65" oninput="popRecalc()" style="background:#1e3a4f!important;border:1.5px solid #2d5a7a!important;color:#e0f2fe!important;border-radius:7px;padding:6px 9px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;outline:none"></div>
+          <div><label style="color:#94a3b8">Rate / Running Ft (₹)</label><input type="number" id="pop_runft_rate" value="120" oninput="popRecalc()" style="background:#1e3a4f!important;border:1.5px solid #2d5a7a!important;color:#e0f2fe!important;border-radius:7px;padding:6px 9px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;outline:none"></div>
+        </div>
+      </div>
+      <div id="pop-rooms-container"></div>
+      <button class="pop-add-room-btn" onclick="popAddRoom()">🏗 + Add Room / Area</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ELECTRICAL TAB ══ -->
+<div class="tab-page" id="tab-elec">
+  <!-- Desktop sidebar -->
+  <div class="e-sidebar" id="e-sidebar">
+    <div class="slbl">Rooms</div>
+    <div id="room-list"></div>
+    <button class="dash-btn" onclick="openAddRoom()">+ Add room</button>
+  </div>
+
+  <!-- Desktop main content -->
+  <div class="e-main" id="main-content"></div>
+
+  <!-- Desktop right summary panel -->
+  <div class="e-right" id="right-panel">
+    <div class="rp-title">Cost Summary</div>
+    <div class="sbox"><div class="sl">Material</div><div class="sv" id="d-mat">₹0</div></div>
+    <div class="sbox"><div class="sl">Wiring</div><div class="sv" id="d-wir">₹0</div></div>
+    <div class="sbox"><div class="sl">Fitting</div><div class="sv" id="d-fit">₹0</div></div>
+    <div class="sbox grn"><div class="sl">Grand Total</div><div class="sv" id="d-tot">₹0</div></div>
+    <div class="rp-title" style="margin-top:14px">By room</div>
+    <div id="d-breakdown"></div>
+  </div>
+
+  <!-- Mobile rooms view -->
+  <div class="mob-view active" id="mv-rooms">
+    <div style="font-size:15px;font-weight:600;margin-bottom:12px">Select a room</div>
+    <div class="rooms-grid" id="mob-rooms-grid"></div>
+  </div>
+
+  <!-- Mobile items view -->
+  <div class="mob-view" id="mv-items">
+    <div id="mob-items-content"></div>
+  </div>
+
+  <!-- Mobile summary view -->
+  <div class="mob-view" id="mv-esumm">
+    <div style="font-size:15px;font-weight:600;margin-bottom:12px">Cost Summary</div>
+    <div class="mob-sum-grid">
+      <div class="sbox"><div class="sl">Material</div><div class="sv" id="m-mat">₹0</div></div>
+      <div class="sbox"><div class="sl">Wiring</div><div class="sv" id="m-wir">₹0</div></div>
+      <div class="sbox"><div class="sl">Fitting</div><div class="sv" id="m-fit">₹0</div></div>
+      <div class="sbox grn full"><div class="sl">Electric Total</div><div class="sv" id="m-tot">₹0</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">By room</div>
+    <div id="m-breakdown"></div>
+  </div>
+</div>
+
+<!-- ══ FURNITURE TAB ══ -->
+<div class="tab-page" id="tab-furn">
+  <div class="f-wrap">
+    <div class="f-inner">
+      <div class="rates-panel">
+        <h3>⚙ Rate Configuration (₹)</h3>
+        <div class="rates-grid">
+          <div><label>Furniture/Sqft</label><input type="number" id="r_wood" value="550" oninput="frecalc()"></div>
+          <div><label>Shelf/Sqft</label><input type="number" id="r_shelf" value="350" oninput="frecalc()"></div>
+          <div><label>Tandem Basket</label><input type="number" id="r_tandem" value="2500" oninput="frecalc()"></div>
+          <div><label>SS Pullout</label><input type="number" id="r_ss" value="3000" oninput="frecalc()"></div>
+          <div><label>Tandem Accessory</label><input type="number" id="r_tacc" value="2200" oninput="frecalc()"></div>
+          <div><label>Drawer/unit</label><input type="number" id="r_drawer" value="1500" oninput="frecalc()"></div>
+          <div><label>Glass Profile Door</label><input type="number" id="r_glass" value="700" oninput="frecalc()"></div>
+        </div>
+      </div>
+      <div id="f-sections"></div>
+      <div class="sec-card">
+        <div class="sec-head" onclick="ftoggle(this)">
+          <h2><span class="sec-ico">➕</span>Miscellaneous / Add-ons</h2>
+          <span class="chev">▼</span>
+        </div>
+        <div class="sec-body">
+          <div id="misc-items"></div>
+          <button class="fadd" style="margin-top:8px" onclick="addMisc()">+ Add Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAINTING TAB ══ -->
+<div class="tab-page" id="tab-paint">
+  <div class="paint-wrap">
+    <div class="paint-inner">
+      <div class="paint-rates-panel">
+        <h3>🎨 Painting Cost Entry</h3>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px">Enter total cost for each painting item</div>
+      </div>
+      <div id="paint-sections-container"></div>
+      <div class="paint-grand" id="paint-grand-box" style="display:none">
+        <span style="font-family:'Playfair Display',serif;font-size:15px;color:#f4a261">🎨 Painting Total</span>
+        <span id="paint-grand-val" style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:#fff">₹0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMBINED SUMMARY TAB ══ -->
+<div class="tab-page" id="tab-summ">
+  <div class="sum-wrap" id="sum-wrap">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ══ QUICK TOTAL TAB ══ -->
+<div class="tab-page" id="tab-qt">
+  <div class="qt-wrap">
+    <div class="qt-inner">
+      <div class="qt-title">💰 Quick Total Summary</div>
+      <div class="qt-sub">All category totals at a glance</div>
+      <div id="qt-cards"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV (mobile) ══ -->
+<div class="bot-nav" id="bot-nav" style="display:none">
+  <button class="bn-btn" style="color:var(--pc)" id="bn-pop" onclick="switchTab('pop',null,true)"><span class="bn-icon">🏗</span><span>POP</span></button>
+  <button class="bn-btn" id="bn-rooms" onclick="mobTab('rooms')"><span class="bn-icon">🏠</span><span>Rooms</span></button>
+  <button class="bn-btn" id="bn-items" onclick="mobTab('items')"><span class="bn-icon">💡</span><span>Items</span></button>
+  <button class="bn-btn fb" id="bn-furn" onclick="switchTab('furn',null,true)"><span class="bn-icon">🪑</span><span>Furniture</span></button>
+  <button class="bn-btn" id="bn-paint" onclick="switchTab('paint',null,true)" style="color:#c2410c"><span class="bn-icon">🎨</span><span>Painting</span></button>
+  <button class="bn-btn cb" id="bn-summ" onclick="switchTab('summ',null,true)"><span class="bn-icon">📊</span><span>Summary</span></button>
+  <button class="bn-btn" id="bn-qt" onclick="switchTab('qt',null,true)" style="color:#9333ea"><span class="bn-icon">💰</span><span>Totals</span></button>
+</div>
+<div class="total-badge" id="total-badge">₹0</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Manage Electric Items -->
+<div class="overlay" id="manage-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-drag"></div>
+    <div class="modal-head"><h2>⚙️ Manage Electric Items</h2><button class="close-x" onclick="closeManage()">✕</button></div>
+    <div class="mbody">
+      <div class="add-box">
+        <div class="add-box-title">➕ Add new item</div>
+        <label class="flbl">Item name</label>
+        <input type="text" class="finp" id="ni-name" placeholder="e.g. LED downlight, Dimmer switch">
+        <div class="g2" style="margin-bottom:12px">
+          <div><label class="flbl">Category</label><select class="fsel" id="ni-cat" style="margin-bottom:0"></select></div>
+          <div><label class="flbl">New category</label><input type="text" class="finp" id="ni-cat-new" placeholder="Type to create" style="margin-bottom:0"></div>
+        </div>
+        <div class="g2" style="margin-bottom:12px">
+          <div><label class="flbl">Unit</label><select class="fsel" id="ni-unit" style="margin-bottom:0"><option value="nos">nos — counted items</option><option value="per mtr">per mtr — length</option></select></div>
+          <div><label class="flbl">Material ₹/unit</label><input type="number" class="finp" id="ni-mat" placeholder="0" min="0" style="margin-bottom:0"></div>
+        </div>
+        <div class="g2" style="margin-bottom:4px">
+          <div><label class="flbl">Points/unit</label><input type="number" class="finp" id="ni-pts" placeholder="1" min="0" step="0.5" style="margin-bottom:0"></div>
+          <div><label class="flbl">Fitting ₹</label><input type="number" class="finp" id="ni-fit" placeholder="0" min="0" style="margin-bottom:0"></div>
+        </div>
+        <button class="addbtn" style="margin-top:12px" onclick="addCatalogItem()">Add to catalog</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap">Point rate (₹/point):</span>
+        <input type="number" class="mpinp" style="width:90px;text-align:left;padding:8px 10px;font-size:13px" id="point-rate-input" min="0">
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between"><span>Existing items</span><span style="font-size:11px;color:var(--muted);font-weight:400">tap ✕ to delete</span></div>
+      <div class="mtabs" id="manage-tabs"></div>
+      <div id="manage-rows"></div>
+      <button class="savebtn" onclick="saveManage()">Save all changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add item quick -->
+<div class="overlay" id="add-item-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-drag"></div>
+    <div class="modal-head"><h2 id="ai-title">Add item</h2><button class="close-x" onclick="closeAddItem()">✕</button></div>
+    <div class="mbody">
+      <label class="flbl">Item name</label>
+      <input type="text" class="finp" id="ai-name" placeholder="e.g. Spot light">
+      <div class="g2" style="margin-bottom:12px">
+        <div><label class="flbl">Category</label><select class="fsel" id="ai-cat" style="margin-bottom:0"></select></div>
+        <div><label class="flbl">New category</label><input type="text" class="finp" id="ai-cat-new" placeholder="Optional" style="margin-bottom:0"></div>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
+        <div><label class="flbl">Unit</label><select class="fsel" id="ai-unit" style="margin-bottom:0"><option value="nos">nos</option><option value="per mtr">per mtr</option></select></div>
+        <div><label class="flbl">Material ₹</label><input type="number" class="finp" id="ai-mat" placeholder="0" min="0" style="margin-bottom:0"></div>
+      </div>
+      <div class="g2">
+        <div><label class="flbl">Points</label><input type="number" class="finp" id="ai-pts" placeholder="1" min="0" step="0.5" style="margin-bottom:0"></div>
+        <div><label class="flbl">Fitting ₹</label><input type="number" class="finp" id="ai-fit" placeholder="0" min="0" style="margin-bottom:0"></div>
+      </div>
+      <button class="savebtn" onclick="saveAddItem()">Add item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add room -->
+<div class="overlay" id="room-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-drag"></div>
+    <div class="modal-head"><h2>Add Room</h2><button class="close-x" onclick="closeAddRoom()">✕</button></div>
+    <div class="mbody">
+      <label class="flbl">Room name</label>
+      <input type="text" class="finp" id="nr-name" placeholder="e.g. Study room, Balcony">
+      <label class="flbl">Pick icon</label>
+      <div class="epicker" id="epicker"></div>
+      <button class="savebtn" onclick="addRoom()">Add room</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export PDF -->
+<div class="overlay" id="fsec-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-drag"></div>
+    <div class="modal-head"><h2>🪑 Add Room / Section</h2><button class="close-x" onclick="closeAddFSection()">✕</button></div>
+    <div class="mbody">
+      <label class="flbl">Section / Room name</label>
+      <input type="text" class="finp" id="fs-name" placeholder="e.g. Bedroom 3, Dining, Store room">
+      <label class="flbl">Pick an icon</label>
+      <div class="epicker" id="fs-epicker" style="margin-bottom:14px"></div>
+      <label class="chk" style="margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="fs-kitchen" style="accent-color:var(--fb);width:16px;height:16px;cursor:pointer">
+        This is a kitchen section (enables Tandem / SS basket options)
+      </label>
+      <button class="savebtn" style="background:var(--fb)" onclick="saveAddFSection()">Add section</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export PDF -->
+<div class="overlay" id="export-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-drag"></div>
+    <div class="modal-head"><h2>📄 Export to PDF</h2><button class="close-x" onclick="closeExport()">✕</button></div>
+    <div class="mbody">
+      <div style="background:var(--eg2);border:1px solid #b4d9c4;border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:12px;color:#1a5c34">
+        Fill in client details. A PDF will open — use <strong>Print → Save as PDF</strong> to save/share.
+      </div>
+      <label class="flbl">Client / Customer name</label>
+      <input type="text" class="finp" id="ex-client" placeholder="e.g. Ramesh Patel">
+      <label class="flbl">Site / Project address</label>
+      <input type="text" class="finp" id="ex-address" placeholder="e.g. B-12, Satellite, Ahmedabad">
+      <div class="g2">
+        <div><label class="flbl">Your name / Company</label><input type="text" class="finp" id="ex-company" placeholder="e.g. Hiren Interiors" style="margin-bottom:0"></div>
+        <div><label class="flbl">Contact / Phone</label><input type="text" class="finp" id="ex-phone" placeholder="e.g. 98765 43210" style="margin-bottom:0"></div>
+      </div>
+      <label class="flbl" style="margin-top:12px">Notes / Terms (optional)</label>
+      <textarea class="finp" id="ex-note" rows="2" placeholder="e.g. GST extra. Valid for 30 days." style="resize:vertical;line-height:1.5"></textarea>
+      <button class="savebtn" onclick="generatePDF()">📄 Generate &amp; Print PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD / RENAME PROJECT ══ -->
+<div class="overlay" id="proj-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-drag"></div>
+    <div class="modal-head"><h2 id="proj-modal-title">New Project</h2><button class="close-x" onclick="closeProjModal()">✕</button></div>
+    <div class="mbody">
+      <label class="flbl">Project name</label>
+      <input type="text" class="finp" id="proj-name-input" placeholder="e.g. Patel Residence, Office Fit-out">
+      <button class="savebtn" style="background:var(--fb)" onclick="saveProjModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════ SHARED ══════════ */
+const EMOJIS=['🛋','🛏','🍳','🚽','🚿','🚪','📚','🏠','🧺','💼','🎮','🌿','🏋','🎨','🚗','🔌','💡','🏗','🎵','🌞'];
+let selEmoji='🏠', activeMTab='', mobScreen='rooms', activeTabId='pop';
+
+function dc(o){return JSON.parse(JSON.stringify(o))}
+function uid(){return 'i'+Date.now()+'_'+Math.random().toString(36).slice(2,6)}
+function fmtN(n){return Math.round(n).toLocaleString('en-IN')}
+function fmt(n){return '₹'+fmtN(n)}
+function esc(s){return s.replace(/'/g,"\\'")}
+function xe(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+
+/* ══════════ TAB SWITCHING ══════════ */
+function switchTab(id, btn, isMob){
+  activeTabId=id;
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.tnav').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+id+"'"))b.classList.add('active')});
+
+  const isMobile=window.innerWidth<=768;
+  const isTablet=window.innerWidth>=769&&window.innerWidth<=1024;
+  document.getElementById('bot-nav').style.display=(isMobile||isTablet)?'flex':'none';
+  document.getElementById('btn-manage').style.display=(id==='elec')?'':'none';
+
+  if(id==='summ')renderCombinedSummary();
+  if(id==='qt')renderQuickTotal();
+  if(id==='paint'){paintRender();}
+  if(id==='pop')popRender();
+  if(id==='elec'){
+    ['rooms','items','esumm'].forEach(t=>{
+      document.getElementById('mv-'+t).classList.toggle('active',t===mobScreen&&isMobile);
+    });
+  }
+  updateBadges();
+}
+
+/* ══════════ ELECTRICAL DATA ══════════ */
+const DEF_CAT=[
+  {id:'panel',    name:'Panel light (up to 15W)',         cat:'Lights',     unit:'nos',    matPrice:250,pointEach:1,  fittingEach:60},
+  {id:'cob',      name:'COB light (up to 12W)',           cat:'Lights',     unit:'nos',    matPrice:300,pointEach:1,  fittingEach:60},
+  {id:'profile',  name:'Profile + strip light (240 LED)', cat:'Lights',     unit:'per mtr',matPrice:90, pointEach:0.5,fittingEach:60},
+  {id:'rope',     name:'Rope light (120 LED)',             cat:'Lights',     unit:'per mtr',matPrice:50, pointEach:0.5,fittingEach:60},
+  {id:'button',   name:'Small button light',              cat:'Lights',     unit:'nos',    matPrice:200,pointEach:1,  fittingEach:60},
+  {id:'fan',      name:'Fan + hook fitting',              cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:1,  fittingEach:300},
+  {id:'plug5',    name:'5 Amp plug point',                cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:1,  fittingEach:0},
+  {id:'plug15',   name:'15 Amp plug point',               cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:2,  fittingEach:0},
+  {id:'ac',       name:'AC point (20 Amp)',               cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:3,  fittingEach:0},
+  {id:'twowaySw', name:'Two-way switch point',            cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:2,  fittingEach:0},
+  {id:'exhaust',  name:'Exhaust fan point',               cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:1,  fittingEach:0},
+  {id:'bell',     name:'Door bell point',                 cat:'Electrical', unit:'nos',    matPrice:0,  pointEach:1,  fittingEach:0},
+  {id:'wire15',   name:'Main line ext. 1.5mm',            cat:'Wiring',     unit:'per mtr',matPrice:100,pointEach:0,  fittingEach:0},
+  {id:'wire25',   name:'Main line ext. 2.5mm',            cat:'Wiring',     unit:'per mtr',matPrice:140,pointEach:0,  fittingEach:0},
+];
+const DEF_ROOMS=[
+  {id:'entry',  name:'Entry gate',        icon:'🚪'},
+  {id:'living', name:'Living room',       icon:'🛋'},
+  {id:'kitchen',name:'Kitchen',           icon:'🍳'},
+  {id:'toilet', name:'Common toilet',     icon:'🚽'},
+  {id:'bed1',   name:'Bedroom 1',         icon:'🛏'},
+  {id:'bed2',   name:'Bedroom 2',         icon:'🛏'},
+  {id:'bath',   name:'Attached bathroom', icon:'🚿'},
+];
+
+function loadEState(){
+  try{return{
+    catalog:JSON.parse(localStorage.getItem('hee_cat'))||dc(DEF_CAT),
+    rooms:  JSON.parse(localStorage.getItem('hee_rms'))||dc(DEF_ROOMS),
+    qty:    JSON.parse(localStorage.getItem('hee_qty'))||{},
+    ptRate: JSON.parse(localStorage.getItem('hee_ptr'))||500,
+    active: localStorage.getItem('hee_act')||'living',
+  }}catch(e){return{catalog:dc(DEF_CAT),rooms:dc(DEF_ROOMS),qty:{},ptRate:500,active:'living'}}
+}
+function saveEState(){
+  localStorage.setItem('hee_cat',JSON.stringify(ES.catalog));
+  localStorage.setItem('hee_rms',JSON.stringify(ES.rooms));
+  localStorage.setItem('hee_qty',JSON.stringify(ES.qty));
+  localStorage.setItem('hee_ptr',JSON.stringify(ES.ptRate));
+  localStorage.setItem('hee_act',ES.active);
+}
+let ES=loadEState();
+if(!ES.rooms.find(r=>r.id===ES.active)) ES.active=ES.rooms[0]?.id||'';
+
+function getCats(){return[...new Set(ES.catalog.map(c=>c.cat))]}
+function getQty(r,i){return(ES.qty[r]||{})[i]||0}
+function setQty(r,i,v){if(!ES.qty[r])ES.qty[r]={};ES.qty[r][i]=Math.max(0,v);saveEState();eRender()}
+function roomTotal(rId){let mat=0,pts=0,fit=0;ES.catalog.forEach(c=>{const q=getQty(rId,c.id);mat+=q*c.matPrice;pts+=q*c.pointEach;fit+=q*c.fittingEach});return{mat,pts,fit,total:mat+Math.round(pts)*ES.ptRate+fit}}
+function eGrandTotal(){let mat=0,pts=0,fit=0;ES.rooms.forEach(r=>{const t=roomTotal(r.id);mat+=t.mat;pts+=t.pts;fit+=t.fit});return{mat:Math.round(mat),pts:Math.round(pts),fit:Math.round(fit),wiring:Math.round(pts)*ES.ptRate,total:Math.round(mat)+Math.round(pts)*ES.ptRate+Math.round(fit)}}
+
+function eRender(){renderESidebar();renderEDesktop();renderESummary();renderMobRooms();renderMobItems();updateBadges()}
+
+function renderESidebar(){
+  document.getElementById('room-list').innerHTML=ES.rooms.map(r=>{
+    const t=roomTotal(r.id);
+    return`<button class="room-btn ${r.id===ES.active?'active':''} ${t.total>0?'has-items':''}" onclick="selectRoom('${r.id}')">
+      <span class="room-icon">${r.icon}</span>
+      <span class="room-name">${r.name}</span>
+      <span class="room-badge">${fmt(t.total)}</span>
+      <span class="room-del" onclick="deleteRoom(event,'${r.id}')" title="Remove room">✕</span>
+    </button>`;
+  }).join('');
+}
+
+function itemsHTML(roomId){
+  const cats=getCats();
+  let html='';
+  cats.forEach(cat=>{
+    const items=ES.catalog.filter(c=>c.cat===cat);
+    html+=`<div class="cat-block">
+      <div class="cat-header">
+        <div class="cat-label">${cat}</div>
+        <button class="cat-add-btn" onclick="openAddItem('${esc(cat)}')">+ Add item</button>
+      </div>`;
+    items.forEach(item=>{
+      const q=getQty(roomId,item.id);
+      const rowCost=q*(item.matPrice+item.pointEach*ES.ptRate+item.fittingEach);
+      const meta=[];
+      const unit=item.unit||'nos';
+      if(item.matPrice)meta.push('₹'+item.matPrice+'/'+unit);
+      if(item.pointEach)meta.push(item.pointEach+' pt'+(item.pointEach!==1?'s':''));
+      if(item.fittingEach)meta.push('Fit ₹'+item.fittingEach);
+      const qLabel=unit==='per mtr'?q+'m':q;
+      html+=`<div class="item-row">
+        <button class="del-x" onclick="deleteItem('${item.id}')" title="Remove">✕</button>
+        <div style="flex:1;min-width:0">
+          <div class="iname">${item.name} <span style="font-size:10px;background:${unit==='per mtr'?'#e6f0fb':'#f0f0f0'};color:${unit==='per mtr'?'#1a5ca0':'#555'};padding:1px 6px;border-radius:4px;font-weight:500;vertical-align:middle">${unit}</span></div>
+          <div class="imeta">${meta.join(' · ')||'—'}</div>
+        </div>
+        <div class="qc">
+          <button class="qb" onclick="setQty('${roomId}','${item.id}',${q-1})">−</button>
+          <div class="qv" style="font-size:${unit==='per mtr'?'12px':'14px'}">${qLabel}</div>
+          <button class="qb" onclick="setQty('${roomId}','${item.id}',${q+1})">+</button>
+        </div>
+        <div class="rcost ${q===0?'zero':''}">${q>0?fmt(rowCost):'—'}</div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  html+=`<div class="new-cat-wrap">
+    <button class="dash-btn" style="text-align:center" onclick="openAddItem('')">+ Add item in a new category</button>
+  </div>`;
+  return html;
+}
+
+function renderEDesktop(){
+  const room=ES.rooms.find(r=>r.id===ES.active);
+  const el=document.getElementById('main-content');
+  if(!room){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted)">Select a room to begin</div>';return}
+  el.innerHTML=`<div class="room-heading">${room.icon} ${room.name}</div>`+itemsHTML(ES.active);
+}
+
+function renderMobRooms(){
+  const grid=document.getElementById('mob-rooms-grid');
+  let html=ES.rooms.map(r=>{
+    const t=roomTotal(r.id);
+    return`<div class="room-card ${r.id===ES.active?'active':''}" onclick="mobSelectRoom('${r.id}')">
+      <button class="rc-del" onclick="deleteRoom(event,'${r.id}')" title="Remove room">✕</button>
+      <div class="rc-icon">${r.icon}</div>
+      <div class="rc-name">${r.name}</div>
+      ${t.total>0?`<div class="rc-total">${fmt(t.total)}</div>`:''}
+    </div>`;
+  }).join('');
+  html+=`<div class="add-room-card" onclick="openAddRoom()">
+    <div class="rc-icon">➕</div>
+    <div class="rc-name" style="color:var(--muted)">Add room</div>
+  </div>`;
+  grid.innerHTML=html;
+}
+
+function renderMobItems(){
+  const room=ES.rooms.find(r=>r.id===ES.active);
+  const el=document.getElementById('mob-items-content');
+  if(!room){el.innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">Tap "Rooms" to select a room first</div>';return}
+  el.innerHTML=`<div class="room-heading">${room.icon} ${room.name}</div>`+itemsHTML(ES.active);
+}
+
+function renderESummary(){
+  const g=eGrandTotal();
+  const wt=`${fmt(g.wiring)} (${g.pts}pts)`;
+  ['d-mat','m-mat'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmt(g.mat)});
+  ['d-wir','m-wir'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=wt});
+  ['d-fit','m-fit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmt(g.fit)});
+  ['d-tot','m-tot'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=fmt(g.total)});
+  const rows=ES.rooms.map(r=>{const t=roomTotal(r.id);return{n:r.icon+' '+r.name,v:t.total}}).filter(x=>x.v>0);
+  const brkHtml=rows.length?rows.map(r=>`<div class="rbrk"><span>${r.n}</span><span>${fmt(r.v)}</span></div>`).join(''):'<div style="font-size:12px;color:var(--muted);padding:6px 0">No items added yet</div>';
+  ['d-breakdown','m-breakdown'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=brkHtml});
+}
+
+function selectRoom(id){ES.active=id;saveEState();eRender()}
+function mobSelectRoom(id){ES.active=id;saveEState();eRender();mobTab('items')}
+function mobTab(tab){
+  mobScreen=tab;
+  ['rooms','items','esumm'].forEach(t=>{
+    document.getElementById('mv-'+t).classList.toggle('active',t===tab);
+    const bn=document.getElementById('bn-'+t);
+    if(bn)bn.classList.toggle('active',t===tab);
+  });
+}
+
+function deleteRoom(event,roomId){
+  event.stopPropagation();
+  const room=ES.rooms.find(r=>r.id===roomId);
+  const hasItems=Object.values(ES.qty[roomId]||{}).some(v=>v>0);
+  const msg=hasItems?`Remove "${room?.name}"?\n\nThis room has items added. All quantities will be deleted.`:`Remove "${room?.name}"?`;
+  if(!confirm(msg))return;
+  ES.rooms=ES.rooms.filter(r=>r.id!==roomId);delete ES.qty[roomId];
+  if(ES.active===roomId)ES.active=ES.rooms[0]?.id||'';
+  saveEState();eRender();toast(room?.name+' removed ✓');
+}
+function deleteItem(itemId){
+  const item=ES.catalog.find(c=>c.id===itemId);
+  if(!confirm('Remove "'+item?.name+'" from all rooms?'))return;
+  ES.catalog=ES.catalog.filter(c=>c.id!==itemId);
+  Object.keys(ES.qty).forEach(rId=>{if(ES.qty[rId])delete ES.qty[rId][itemId]});
+  saveEState();eRender();toast('Item removed ✓');
+}
+
+/* Electric Manage */
+function openManage(){
+  document.getElementById('point-rate-input').value=ES.ptRate;
+  document.getElementById('ni-cat').innerHTML=[...getCats(),'Other'].map(c=>`<option>${c}</option>`).join('');
+  activeMTab=getCats()[0]||'';renderManageTabs();renderManageRows();
+  ['ni-name','ni-mat','ni-pts','ni-fit','ni-cat-new'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ni-unit').value='nos';
+  document.getElementById('manage-modal').classList.add('open');
+}
+function closeManage(){document.getElementById('manage-modal').classList.remove('open')}
+function renderManageTabs(){
+  const cats=getCats();if(!cats.includes(activeMTab))activeMTab=cats[0]||'';
+  document.getElementById('manage-tabs').innerHTML=cats.map(c=>`<button class="mtab ${c===activeMTab?'active':''}" onclick="switchMTab('${esc(c)}')">${c} <span style="opacity:.6;font-size:10px">(${ES.catalog.filter(x=>x.cat===c).length})</span></button>`).join('');
+}
+function switchMTab(cat){activeMTab=cat;renderManageTabs();renderManageRows()}
+function renderManageRows(){
+  const items=ES.catalog.filter(c=>c.cat===activeMTab);
+  let html=`<div class="mrow mhdr" style="grid-template-columns:1fr 80px 70px 55px 70px 32px">
+    <span>Item</span><span style="text-align:center">Unit</span>
+    <span style="text-align:right">Mat ₹</span><span style="text-align:right">Pts</span>
+    <span style="text-align:right">Fit ₹</span><span></span>
+  </div>`;
+  items.forEach(item=>{
+    const unit=item.unit||'nos';
+    html+=`<div class="mrow" style="grid-template-columns:1fr 80px 70px 55px 70px 32px">
+      <span style="font-size:12px;word-break:break-word;line-height:1.3">${item.name}</span>
+      <select class="mpinp" data-id="${item.id}" data-f="unit" style="text-align:left;padding:5px 4px;font-size:11px;cursor:pointer">
+        <option value="nos" ${unit==='nos'?'selected':''}>nos</option>
+        <option value="per mtr" ${unit==='per mtr'?'selected':''}>per mtr</option>
+      </select>
+      <input type="number" class="mpinp" data-id="${item.id}" data-f="matPrice"    value="${item.matPrice}"    min="0">
+      <input type="number" class="mpinp" data-id="${item.id}" data-f="pointEach"   value="${item.pointEach}"   min="0" step="0.5">
+      <input type="number" class="mpinp" data-id="${item.id}" data-f="fittingEach" value="${item.fittingEach}" min="0">
+      <button class="del-row" onclick="deleteItemManage('${item.id}')" title="Delete">✕</button>
+    </div>`;
+  });
+  if(!items.length)html+='<div style="font-size:13px;color:var(--muted);padding:12px 0">No items yet — add one above</div>';
+  document.getElementById('manage-rows').innerHTML=html;
+}
+function deleteItemManage(itemId){
+  const item=ES.catalog.find(c=>c.id===itemId);
+  if(!confirm('Delete "'+item?.name+'" from catalog?'))return;
+  ES.catalog=ES.catalog.filter(c=>c.id!==itemId);
+  Object.keys(ES.qty).forEach(rId=>{if(ES.qty[rId])delete ES.qty[rId][itemId]});
+  saveEState();eRender();renderManageTabs();renderManageRows();toast('Deleted ✓');
+}
+function addCatalogItem(){
+  const name=document.getElementById('ni-name').value.trim();if(!name){toast('Enter item name');return}
+  const catNew=document.getElementById('ni-cat-new').value.trim();
+  const cat=catNew||document.getElementById('ni-cat').value||'Other';
+  ES.catalog.push({id:uid(),name,cat,
+    unit:       document.getElementById('ni-unit').value||'nos',
+    matPrice:   parseFloat(document.getElementById('ni-mat').value)||0,
+    pointEach:  parseFloat(document.getElementById('ni-pts').value)||0,
+    fittingEach:parseFloat(document.getElementById('ni-fit').value)||0,
+  });
+  ['ni-name','ni-mat','ni-pts','ni-fit','ni-cat-new'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ni-unit').value='nos';activeMTab=cat;
+  document.getElementById('ni-cat').innerHTML=[...getCats(),'Other'].map(c=>`<option>${c}</option>`).join('');
+  saveEState();eRender();renderManageTabs();renderManageRows();toast(name+' added ✓');
+}
+function saveManage(){
+  document.querySelectorAll('#manage-rows [data-id]').forEach(el=>{
+    const item=ES.catalog.find(c=>c.id===el.dataset.id);if(!item)return;
+    if(el.tagName==='SELECT')item[el.dataset.f]=el.value;else item[el.dataset.f]=parseFloat(el.value)||0;
+  });
+  ES.ptRate=parseFloat(document.getElementById('point-rate-input').value)||500;
+  saveEState();eRender();closeManage();toast('Saved ✓');
+}
+function openAddItem(cat){
+  document.getElementById('ai-title').textContent=cat?'Add item to '+cat:'Add item to new category';
+  ['ai-name','ai-mat','ai-fit','ai-cat-new'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ai-pts').value='1';document.getElementById('ai-unit').value='nos';
+  document.getElementById('ai-cat').innerHTML=getCats().map(c=>`<option value="${c}" ${c===cat?'selected':''}>${c}</option>`).join('');
+  document.getElementById('add-item-modal').classList.add('open');
+}
+function closeAddItem(){document.getElementById('add-item-modal').classList.remove('open')}
+function saveAddItem(){
+  const name=document.getElementById('ai-name').value.trim();if(!name){toast('Enter an item name');return}
+  const catNew=document.getElementById('ai-cat-new').value.trim();
+  const cat=catNew||document.getElementById('ai-cat').value||'Other';
+  ES.catalog.push({id:uid(),name,cat,
+    unit:       document.getElementById('ai-unit').value||'nos',
+    matPrice:   parseFloat(document.getElementById('ai-mat').value)||0,
+    pointEach:  parseFloat(document.getElementById('ai-pts').value)||0,
+    fittingEach:parseFloat(document.getElementById('ai-fit').value)||0,
+  });
+  saveEState();eRender();closeAddItem();toast(name+' added ✓');
+}
+function openAddRoom(){
+  document.getElementById('nr-name').value='';selEmoji='🏠';
+  document.getElementById('epicker').innerHTML=EMOJIS.map(e=>`<button class="ep ${e===selEmoji?'sel':''}" onclick="pickEmoji('${e}',this)">${e}</button>`).join('');
+  document.getElementById('room-modal').classList.add('open');
+}
+function closeAddRoom(){document.getElementById('room-modal').classList.remove('open')}
+function pickEmoji(e,btn){selEmoji=e;document.querySelectorAll('.ep').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel')}
+function addRoom(){
+  const name=document.getElementById('nr-name').value.trim();if(!name){toast('Enter a room name');return}
+  const id='room_'+Date.now();
+  ES.rooms.push({id,name,icon:selEmoji});ES.active=id;
+  saveEState();eRender();closeAddRoom();toast('Room added ✓');
+  if(window.innerWidth<=768)mobTab('items');
+}
+
+/* ══════════ FURNITURE DATA ══════════ */
+const F_DEFS=[
+  {id:'entry',  label:'Entry Gate',          icon:'🚪', items:[
+    {name:'Safety Gate + Paneling',  w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+    {name:'Shoes Rack',              w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[{w:0,h:0,qty:1}],tandemItems:[]},
+  ]},
+  {id:'living', label:'Living Room',          icon:'🛋', items:[
+    {name:'TV Unit Paneling',        w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+    {name:'TV Unit Drawer Box',      w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+    {name:'TV Unit Showcase',        w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+    {name:'Hall Pelmet',             w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+  ]},
+  {id:'kitchen',label:'Kitchen',              icon:'🍳', isKitchen:true, items:[
+    {name:'Below Kitchen Platform',  w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[{type:'tandem',qty:0,accessories:true},{type:'ss',qty:0}]},
+    {name:'Kitchen Store Room',      w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[{w:0,h:0,qty:1}],tandemItems:[]},
+    {name:'Chimney Cupboard',        w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+  ]},
+  {id:'bed1',   label:'Master Bedroom',       icon:'🛏', items:[
+    {name:'Dressing Table',          w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+    {name:'Cupboard',                w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[{w:0,h:0,qty:2}],tandemItems:[]},
+    {name:'Bedroom 1 - Pelmet',      w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+  ]},
+  {id:'bed2',   label:'Bedroom 2',            icon:'🛏', items:[
+    {name:'Bedroom 2 - Pelmet',      w:0, h:0, d:0,    drawers:0,glassQty:0,shelves:[],tandemItems:[]},
+  ]},
+];
+function loadFState(){
+  try{return{
+    sections:JSON.parse(localStorage.getItem('hf_sec'))||dc(F_DEFS),
+    misc:    JSON.parse(localStorage.getItem('hf_misc'))||[
+      {label:'Safety Gate CNC + Transport',qty:0,rate:3500},
+      {label:'Door Laminate + Lock',        qty:0,rate:5500},
+      {label:'Mirror for Dressing Table',   qty:0,rate:1800},
+    ]
+  }}catch(e){return{sections:dc(F_DEFS),misc:[]}}
+}
+function saveFState(){
+  localStorage.setItem('hf_sec',JSON.stringify(FS.sections));
+  localStorage.setItem('hf_misc',JSON.stringify(FS.misc));
+}
+let FS=loadFState();
+
+function fRates(){return{wood:+document.getElementById('r_wood').value,shelf:+document.getElementById('r_shelf').value,tandem:+document.getElementById('r_tandem').value,ss:+document.getElementById('r_ss').value,tacc:+document.getElementById('r_tacc').value,drawer:+document.getElementById('r_drawer').value,glass:+document.getElementById('r_glass').value}}
+function fsqft(item){return item.d>0?(item.w+item.d)*(item.h+item.d):item.w*item.h}
+function fsecTotal(sec){
+  const R=fRates();let t=0;
+  sec.items.forEach(item=>{
+    t+=fsqft(item)*R.wood;
+    t+=item.shelves.reduce((a,s)=>a+s.w*s.h*s.qty,0)*R.shelf;
+    t+=(item.drawers||0)*R.drawer;t+=(item.glassQty||0)*R.glass;
+    (item.tandemItems||[]).forEach(td=>{if(td.type==='tandem'){t+=td.qty*R.tandem;if(td.accessories)t+=td.qty*R.tacc;}else t+=td.qty*R.ss;});
+  });
+  return t;
+}
+function fGrandTotal(){
+  const R=fRates();let mat=0,shelf=0,draw=0,glass=0,tandem=0,ss=0,misc=0;
+  FS.sections.forEach(sec=>sec.items.forEach(item=>{
+    mat+=fsqft(item)*R.wood;shelf+=item.shelves.reduce((a,s)=>a+s.w*s.h*s.qty,0)*R.shelf;
+    draw+=(item.drawers||0)*R.drawer;glass+=(item.glassQty||0)*R.glass;
+    (item.tandemItems||[]).forEach(td=>{if(td.type==='tandem'){tandem+=td.qty*R.tandem;if(td.accessories)tandem+=td.qty*R.tacc;}else ss+=td.qty*R.ss;});
+  }));
+  FS.misc.forEach(m=>misc+=m.qty*m.rate);
+  const total=mat+shelf+draw+glass+tandem+ss+misc;
+  return{mat,shelf,draw,glass,tandem,ss,misc,total};
+}
+
+function fRender(){
+  const cont=document.getElementById('f-sections');cont.innerHTML='';
+  FS.sections.forEach((sec,si)=>{
+    const card=document.createElement('div');card.className='sec-card';
+    card.innerHTML=`<div class="sec-head" onclick="ftoggle(this)">
+      <h2><span class="sec-ico">${sec.icon}</span>${sec.label}<span class="sec-meta" id="fsm${si}"></span></h2>
+      <div style="display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
+        <span class="chev" style="pointer-events:none">▼</span>
+        <button onclick="fdeleteSection(${si})" title="Remove this section" style="background:#fce8e8;color:var(--red);border:1px solid #f5c6c6;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s">✕</button>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div id="fi${si}"></div>
+      <button class="fadd" onclick="faddItem(${si})">+ Add Furniture</button>
+    </div>`;
+    cont.appendChild(card);
+    fRenderItems(si);
+  });
+  /* Add Section button */
+  const addSecBtn=document.createElement('button');
+  addSecBtn.className='fadd';
+  addSecBtn.style.cssText='width:100%;justify-content:center;margin-bottom:12px;background:#f8f4ee;color:var(--fb);border:1.5px dashed var(--fba);font-size:13px;padding:12px';
+  addSecBtn.innerHTML='+ Add Room / Section';
+  addSecBtn.onclick=openAddFSection;
+  cont.appendChild(addSecBtn);
+  fRenderMisc();frecalc();
+}
+function fRenderItems(si){
+  const c=document.getElementById('fi'+si);c.innerHTML='';
+  FS.sections[si].items.forEach((_,ii)=>c.appendChild(fbuildItem(si,ii)));
+}
+function fbuildItem(si,ii){
+  const sec=FS.sections[si],item=sec.items[ii];
+  const div=document.createElement('div');div.className='fur-item';div.id='fitem'+si+'_'+ii;
+  div.innerHTML=`
+    <div class="fur-item-head">
+      <input class="finame" value="${xe(item.name)}" oninput="FS.sections[${si}].items[${ii}].name=this.value;saveFState();frecalc()">
+      <button class="frm" onclick="fremoveItem(${si},${ii})">✕</button>
+    </div>
+    <div class="fg-grid">
+      <div class="fg"><label>Width (ft)</label><input type="number" step="0.01" value="${item.w}" oninput="fupf(${si},${ii},'w',+this.value)"></div>
+      <div class="fg"><label>Height (ft)</label><input type="number" step="0.01" value="${item.h}" oninput="fupf(${si},${ii},'h',+this.value)"></div>
+      <div class="fg"><label>Depth (ft)</label><input type="number" step="0.01" value="${item.d}" oninput="fupf(${si},${ii},'d',+this.value)"></div>
+      <div class="fg"><label>Drawers</label><input type="number" min="0" value="${item.drawers}" oninput="fupf(${si},${ii},'drawers',+this.value);freri(${si},${ii})"></div>
+      <div class="fg"><label>Glass Doors</label><input type="number" min="0" value="${item.glassQty||0}" oninput="fupf(${si},${ii},'glassQty',+this.value)"></div>
+    </div>
+    <div class="sqft-bar" id="fsq${si}_${ii}"></div>
+    <div class="sub-sec">
+      <div class="sub-title">📦 Inside Shelves</div>
+      <div id="fsh${si}_${ii}"></div>
+      <button class="fadd sm" onclick="faddShelf(${si},${ii})">+ Shelf</button>
+    </div>
+    ${sec.isKitchen?`<div class="sub-sec">
+      <div class="sub-title">🗄 Tandem / SS Baskets</div>
+      <div id="ftd${si}_${ii}"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+        <button class="fadd sm" onclick="faddTandem(${si},${ii},'tandem')">+ Tandem</button>
+        <button class="fadd sm" onclick="faddTandem(${si},${ii},'ss')">+ SS Basket</button>
+      </div>
+    </div>`:''}
+    <div class="sub-sec">
+      <div class="sub-title">📝 Notes / Remarks</div>
+      <textarea class="notes-field" rows="2" placeholder="e.g. Use 18mm BWR ply, Green laminate, Client confirmed size..." oninput="FS.sections[${si}].items[${ii}].notes=this.value;saveFState()">${xe(item.notes||'')}</textarea>
+    </div>`;
+  fRenderShelves(si,ii,div);
+  if(sec.isKitchen)fRenderTandems(si,ii,div);
+  fupdSqft(si,ii);
+  return div;
+}
+function fRenderShelves(si,ii,pel){
+  const c=(pel||document).querySelector('#fsh'+si+'_'+ii);if(!c)return;c.innerHTML='';
+  FS.sections[si].items[ii].shelves.forEach((sh,shi)=>{
+    const r=document.createElement('div');r.className='shelf-row';
+    r.innerHTML=`<div class="fg"><label>W(ft)</label><input type="number" step="0.01" value="${sh.w}" oninput="FS.sections[${si}].items[${ii}].shelves[${shi}].w=+this.value;saveFState();frecalc()"></div>
+      <div class="fg"><label>H(ft)</label><input type="number" step="0.01" value="${sh.h}" oninput="FS.sections[${si}].items[${ii}].shelves[${shi}].h=+this.value;saveFState();frecalc()"></div>
+      <div class="fg"><label>Qty</label><input type="number" min="1" value="${sh.qty}" oninput="FS.sections[${si}].items[${ii}].shelves[${shi}].qty=+this.value;saveFState();frecalc()"></div>
+      <button class="frm" onclick="fremoveShelf(${si},${ii},${shi})">✕</button>`;
+    c.appendChild(r);
+  });
+}
+function fRenderTandems(si,ii,pel){
+  const c=(pel||document).querySelector('#ftd'+si+'_'+ii);if(!c)return;
+  const R=fRates();c.innerHTML='';
+  FS.sections[si].items[ii].tandemItems.forEach((t,ti)=>{
+    const r=document.createElement('div');r.className='tandem-row';
+    r.innerHTML=`<div class="fg"><label>Type</label>
+      <select onchange="fupdTandem(${si},${ii},${ti},'type',this.value)">
+        <option value="tandem" ${t.type==='tandem'?'selected':''}>Tandem Box</option>
+        <option value="ss" ${t.type==='ss'?'selected':''}>SS Basket</option>
+      </select></div>
+      <div class="fg"><label>Qty</label><input type="number" min="1" value="${t.qty}" oninput="fupdTandem(${si},${ii},${ti},'qty',+this.value)"></div>
+      ${t.type==='tandem'?`<div class="fg"><label>Include Accessories?</label>
+        <label class="chk" style="margin-top:6px"><input type="checkbox" ${t.accessories?'checked':''} onchange="fupdTandem(${si},${ii},${ti},'accessories',this.checked)"> Yes (₹${R.tacc}/set)</label></div>`:''}
+      <button class="frm" onclick="fremTandem(${si},${ii},${ti})">✕</button>`;
+    c.appendChild(r);
+  });
+}
+function freri(si,ii){const o=document.getElementById('fitem'+si+'_'+ii);if(o)o.replaceWith(fbuildItem(si,ii))}
+function fupf(si,ii,f,v){FS.sections[si].items[ii][f]=v;saveFState();fupdSqft(si,ii);frecalc()}
+function fupdSqft(si,ii){
+  const item=FS.sections[si].items[ii],el=document.getElementById('fsq'+si+'_'+ii);
+  if(!el)return;
+  const sq=fsqft(item);
+  const formula=item.d>0
+    ?`(${item.w}+${item.d}) × (${item.h}+${item.d})`
+    :`${item.w} × ${item.h}`;
+  el.innerHTML=`Formula: <b>${formula}</b> &nbsp;=&nbsp; <b>${sq.toFixed(4)} sqft</b> &nbsp;|&nbsp; Drawers: <b>${item.drawers}</b> &nbsp;|&nbsp; Glass: <b>${item.glassQty||0}</b>`;
+}
+function faddItem(si){FS.sections[si].items.push({name:'New Item',w:0,h:0,d:0,drawers:0,glassQty:0,shelves:[],tandemItems:[],notes:''});fRenderItems(si);saveFState();frecalc()}
+function fremoveItem(si,ii){FS.sections[si].items.splice(ii,1);fRenderItems(si);saveFState();frecalc()}
+function faddShelf(si,ii){FS.sections[si].items[ii].shelves.push({w:1,h:1,qty:1});freri(si,ii);saveFState();frecalc()}
+function fremoveShelf(si,ii,shi){FS.sections[si].items[ii].shelves.splice(shi,1);freri(si,ii);saveFState();frecalc()}
+function faddTandem(si,ii,type){FS.sections[si].items[ii].tandemItems.push({type,qty:1,accessories:false});freri(si,ii);saveFState();frecalc()}
+function fremTandem(si,ii,ti){FS.sections[si].items[ii].tandemItems.splice(ti,1);freri(si,ii);saveFState();frecalc()}
+function fupdTandem(si,ii,ti,f,v){FS.sections[si].items[ii].tandemItems[ti][f]=v;freri(si,ii);saveFState();frecalc()}
+
+/* ── DELETE FURNITURE SECTION ── */
+function fdeleteSection(si){
+  const sec=FS.sections[si];
+  const hasItems=sec.items.some(item=>fsqft(item)>0||item.shelves.length||item.tandemItems.length||item.drawers||item.glassQty);
+  const msg=hasItems
+    ?`Remove "${sec.label}"?\n\nThis section has data. All will be deleted.`
+    :`Remove "${sec.label}"?`;
+  if(!confirm(msg))return;
+  FS.sections.splice(si,1);saveFState();fRender();toast(sec.label+' removed ✓');
+}
+
+/* ── ADD FURNITURE SECTION ── */
+const F_EMOJIS=['🚪','🛋','🍳','🛏','🚽','🚿','📚','🏠','🧺','🏗','🎨','🌿','💼','🎵','🏋','🚗','🌞'];
+let fSelEmoji='🏠';
+function openAddFSection(){
+  fSelEmoji='🏠';
+  document.getElementById('fs-name').value='';
+  document.getElementById('fs-kitchen').checked=false;
+  document.getElementById('fs-epicker').innerHTML=F_EMOJIS.map(e=>
+    `<button class="ep ${e===fSelEmoji?'sel':''}" onclick="pickFEmoji('${e}',this)">${e}</button>`
+  ).join('');
+  document.getElementById('fsec-modal').classList.add('open');
+}
+function closeAddFSection(){document.getElementById('fsec-modal').classList.remove('open')}
+function pickFEmoji(e,btn){fSelEmoji=e;document.querySelectorAll('#fs-epicker .ep').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel')}
+function saveAddFSection(){
+  const name=document.getElementById('fs-name').value.trim();
+  if(!name){toast('Enter a section name');return}
+  const isKitchen=document.getElementById('fs-kitchen').checked;
+  FS.sections.push({id:'fsec_'+Date.now(),label:name,icon:fSelEmoji,isKitchen,items:[]});
+  saveFState();fRender();closeAddFSection();toast(name+' added ✓');
+}
+
+function fRenderMisc(){
+  const c=document.getElementById('misc-items');c.innerHTML='';
+  FS.misc.forEach((m,mi)=>{
+    const r=document.createElement('div');r.className='misc-row';
+    r.innerHTML=`<div><div class="misc-lbl">Description</div><input type="text" value="${xe(m.label)}" oninput="FS.misc[${mi}].label=this.value;saveFState();frecalc()"></div>
+      <div><div class="misc-lbl">Qty</div><input type="number" min="0" value="${m.qty}" oninput="FS.misc[${mi}].qty=+this.value;saveFState();frecalc()"></div>
+      <div><div class="misc-lbl">Rate (₹)</div><input type="number" value="${m.rate}" oninput="FS.misc[${mi}].rate=+this.value;saveFState();frecalc()"></div>
+      <button class="frm" onclick="FS.misc.splice(${mi},1);saveFState();fRenderMisc()">✕</button>`;
+    c.appendChild(r);
+  });frecalc();
+}
+function addMisc(){FS.misc.push({label:'New Item',qty:1,rate:0});saveFState();fRenderMisc()}
+function ftoggle(hdr){hdr.closest('.sec-card').classList.toggle('coll')}
+function frecalc(){
+  const R=fRates();let grand=0;
+  FS.sections.forEach((sec,si)=>{
+    let sq=0;
+    sec.items.forEach((item,ii)=>{
+      const s=fsqft(item),sh=item.shelves.reduce((a,v)=>a+v.w*v.h*v.qty,0);sq+=s+sh;
+      grand+=s*R.wood+sh*R.shelf+(item.drawers||0)*R.drawer+(item.glassQty||0)*R.glass;
+      (item.tandemItems||[]).forEach(t=>{if(t.type==='tandem'){grand+=t.qty*R.tandem;if(t.accessories)grand+=t.qty*R.tacc;}else grand+=t.qty*R.ss;});
+      fupdSqft(si,ii);
+    });
+    const el=document.getElementById('fsm'+si);if(el)el.textContent=` — ${sq.toFixed(2)} sqft`;
+  });
+  FS.misc.forEach(m=>grand+=m.qty*m.rate);
+  updateBadges();
+}
+
+/* ══════════ POP CEILING DATA ══════════ */
+const POP_DEF_ROOMS=[
+  {id:'pop_living',  name:'Living Room',          icon:'🛋', entries:[
+    {id:'e1',label:'Full Ceiling',   l:0, w:0, runFt:0},
+  ]},
+  {id:'pop_kitchen', name:'Kitchen',              icon:'🍳', entries:[
+    {id:'e1',label:'Full Ceiling',   l:0, w:0,  runFt:0},
+    {id:'e2',label:'Washbasin Area', l:0, w:0,  runFt:0},
+  ]},
+  {id:'pop_bed1',    name:'Bedroom 1',            icon:'🛏', entries:[
+    {id:'e1',label:'Full Ceiling',   l:0, w:0, runFt:0},
+  ]},
+  {id:'pop_bed2',    name:'Bedroom 2',            icon:'🛏', entries:[
+    {id:'e1',label:'Full Ceiling',   l:0, w:0, runFt:0},
+  ]},
+  {id:'pop_bath1',   name:'Bathroom (False Ceiling)',icon:'🚿',entries:[
+    {id:'e1',label:'Full Ceiling',   l:0, w:0, runFt:0},
+  ]},
+];
+
+function loadPState(){
+  try{return{
+    rooms: JSON.parse(localStorage.getItem('hpop_rms'))||dc(POP_DEF_ROOMS),
+    rate:  JSON.parse(localStorage.getItem('hpop_rate'))||65,
+    runFtRate: JSON.parse(localStorage.getItem('hpop_runft_rate'))||120,
+  }}catch(e){return{rooms:dc(POP_DEF_ROOMS),rate:65,runFtRate:120}}
+}
+function savePState(){
+  localStorage.setItem('hpop_rms',JSON.stringify(PS.rooms));
+  localStorage.setItem('hpop_rate',JSON.stringify(PS.rate));
+  saveCurrentProject();
+}
+let PS=loadPState();
+
+function popRate(){return parseFloat(document.getElementById('pop_rate')?.value)||PS.rate||65}
+function popRunFtRate(){return parseFloat(document.getElementById('pop_runft_rate')?.value)||PS.runFtRate||120}
+function popEntryTotal(entry){
+  const sqft=(entry.l||0)*(entry.w||0);
+  const runFtCost=(entry.runFt||0)*popRunFtRate();
+  return sqft*popRate()+runFtCost;
+}
+function popRoomTotal(room){return room.entries.reduce((a,e)=>a+popEntryTotal(e),0)}
+function popGrandTotal(){return PS.rooms.reduce((a,r)=>a+popRoomTotal(r),0)}
+
+function popRender(){
+  const cont=document.getElementById('pop-rooms-container');
+  if(!cont)return;
+  cont.innerHTML='';
+  cont._popListenerAttached=false;
+  PS.rooms.forEach((room,ri)=>{
+    const rTotal=popRoomTotal(room);
+    const card=document.createElement('div');card.className='pop-room-card';
+    card.innerHTML=`
+      <div class="pop-room-head" onclick="popToggle(this)">
+        <h2><span class="pop-room-ico">${room.icon}</span>${room.name}<span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:6px">— ${room.entries.length} area${room.entries.length!==1?'s':''}</span></h2>
+        <div style="display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
+          <span style="font-size:13px;font-weight:700;color:var(--pc);font-family:'DM Mono',monospace">${rTotal>0?fmt(rTotal):''}</span>
+          <span class="chev" style="color:var(--pca);font-size:13px;transition:transform .2s;pointer-events:none">▼</span>
+          <button onclick="popDeleteRoom(${ri})" style="background:#fce8e8;color:var(--red);border:1px solid #f5c6c6;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <div class="pop-room-body" id="popbody${ri}">
+        <div id="pop-entries-${ri}"></div>
+        <button class="pop-add-btn" onclick="popAddEntry(${ri})">+ Add Area</button>
+      </div>`;
+    cont.appendChild(card);
+    popRenderEntries(ri);
+  });
+  updateBadges();
+  popAttachInputListeners();
+}
+
+function popRenderEntries(ri){
+  const c=document.getElementById('pop-entries-'+ri);if(!c)return;
+  c.innerHTML='';
+  PS.rooms[ri].entries.forEach((entry,ei)=>{
+    const sqft=((entry.l||0)*(entry.w||0)).toFixed(2);
+    const entCost=popEntryTotal(entry);
+    const row=document.createElement('div');row.className='pop-row';
+    row.style.gridTemplateColumns='1fr 90px 90px 90px 90px 26px';
+    row.dataset.ri=ri;row.dataset.ei=ei;
+    row.innerHTML=`
+      <div>
+        <div class="pop-fg"><label>Area Name</label>
+          <input type="text" style="width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--card);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--pcd);outline:none" value="${xe(entry.label)}" data-field="label" data-ri="${ri}" data-ei="${ei}">
+        </div>
+      </div>
+      <div class="pop-fg"><label>Length (ft)</label>
+        <input type="number" step="0.01" min="0" value="${entry.l||0}" data-field="l" data-ri="${ri}" data-ei="${ei}">
+      </div>
+      <div class="pop-fg"><label>Width (ft)</label>
+        <input type="number" step="0.01" min="0" value="${entry.w||0}" data-field="w" data-ri="${ri}" data-ei="${ei}">
+      </div>
+      <div class="pop-fg"><label>Running Ft</label>
+        <input type="number" step="0.01" min="0" value="${entry.runFt||0}" title="Extra running feet charge at ₹${popRunFtRate()}/ft" data-field="runFt" data-ri="${ri}" data-ei="${ei}">
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end">
+        <div class="pop-sqft-label" style="font-size:9.5px;color:var(--muted);margin-bottom:3px">${sqft} sqft</div>
+        <div class="pop-cost-badge pop-cost-${ri}-${ei}">${entCost>0?fmt(entCost):'—'}</div>
+      </div>
+      <button style="background:#fce8e8;color:var(--red);border:1px solid #f5c6c6;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;margin-bottom:0;align-self:flex-end" onclick="popDeleteEntry(${ri},${ei})">✕</button>`;
+    c.appendChild(row);
+  });
+  popUpdateRoomHead(ri);
+}
+
+/* Update only cost displays — no DOM rebuild, preserves focus */
+function popUpdateCosts(ri,ei){
+  const entry=PS.rooms[ri].entries[ei];
+  const sqft=((entry.l||0)*(entry.w||0)).toFixed(2);
+  const entCost=popEntryTotal(entry);
+  // update sqft label
+  const row=document.querySelector(`#pop-entries-${ri} .pop-row:nth-child(${ei+1})`);
+  if(row){
+    const sqftEl=row.querySelector('.pop-sqft-label');
+    if(sqftEl)sqftEl.textContent=sqft+' sqft';
+  }
+  const costEl=document.querySelector(`.pop-cost-${ri}-${ei}`);
+  if(costEl)costEl.textContent=entCost>0?fmt(entCost):'—';
+  popUpdateRoomHead(ri);
+  updateBadges();
+}
+
+function popUpdateRoomHead(ri){
+  const head=document.querySelector(`#pop-rooms-container .pop-room-card:nth-child(${ri+1}) .pop-room-head span[style*="DM Mono"]`);
+  const rTotal=popRoomTotal(PS.rooms[ri]);
+  if(head)head.textContent=rTotal>0?fmt(rTotal):'';
+}
+
+/* Single delegated listener on the container — attached once in popRender */
+function popAttachInputListeners(){
+  const cont=document.getElementById('pop-rooms-container');
+  if(!cont||cont._popListenerAttached)return;
+  cont._popListenerAttached=true;
+  cont.addEventListener('input',function(e){
+    const inp=e.target;
+    const field=inp.dataset.field;
+    if(!field)return;
+    const ri=+inp.dataset.ri, ei=+inp.dataset.ei;
+    if(isNaN(ri)||isNaN(ei))return;
+    if(field==='label'){
+      PS.rooms[ri].entries[ei].label=inp.value;
+    } else {
+      PS.rooms[ri].entries[ei][field]=parseFloat(inp.value)||0;
+    }
+    savePState();
+    popUpdateCosts(ri,ei);
+  });
+}
+
+function popAddEntry(ri){
+  PS.rooms[ri].entries.push({id:'e'+Date.now(),label:'New Area',l:0,w:0,runFt:0});
+  savePState();popRenderEntries(ri);updateBadges();
+}
+function popDeleteEntry(ri,ei){
+  PS.rooms[ri].entries.splice(ei,1);savePState();popRenderEntries(ri);updateBadges();
+}
+function popAddRoom(){
+  const name=prompt('Enter room/area name:');if(!name)return;
+  PS.rooms.push({id:'pop_'+Date.now(),name,icon:'🏗',entries:[{id:'e1',label:'Full Ceiling',l:0,w:0,runFt:0}]});
+  savePState();popRender();toast(name+' added ✓');
+}
+function popDeleteRoom(ri){
+  if(!confirm('Remove "'+PS.rooms[ri].name+'"?'))return;
+  const n=PS.rooms[ri].name;PS.rooms.splice(ri,1);savePState();popRender();toast(n+' removed ✓');
+}
+function popToggle(hdr){hdr.closest('.pop-room-card').querySelector('.pop-room-body').style.display=hdr.closest('.pop-room-card').querySelector('.pop-room-body').style.display==='none'?'block':'none';hdr.querySelector('.chev').style.transform=hdr.closest('.pop-room-card').querySelector('.pop-room-body').style.display==='none'?'rotate(-90deg)':''}
+function popRecalc(){PS.rate=popRate();PS.runFtRate=popRunFtRate();savePState();popRender();}
+
+/* ══════════ PAINTING DATA ══════════ */
+const PAINT_DEF_SECTIONS=[
+  {id:'primer',  label:'Primer',        icon:'🪣', items:[{name:'Primer Cost',cost:0}]},
+  {id:'putty',   label:'Putty / Wall Putty', icon:'🧱', items:[{name:'Putty Cost',cost:0}]},
+  {id:'color',   label:'Color / Paint', icon:'🎨', items:[{name:'Paint Cost',cost:0}]},
+  {id:'labour',  label:'Labour',        icon:'👷', items:[{name:'Labour Charges',cost:0}]},
+];
+
+function loadPaintState(){
+  try{const s=localStorage.getItem('hpaint_sec');return s?JSON.parse(s):dc(PAINT_DEF_SECTIONS);}catch(e){return dc(PAINT_DEF_SECTIONS)}
+}
+function savePaintState(){localStorage.setItem('hpaint_sec',JSON.stringify(PAINT_SEC));saveCurrentProject();}
+let PAINT_SEC=loadPaintState();
+
+function paintGrandTotal(){return PAINT_SEC.reduce((a,s)=>a+s.items.reduce((b,i)=>b+(+i.cost||0),0),0)}
+function paintSecTotal(sec){return sec.items.reduce((a,i)=>a+(+i.cost||0),0)}
+
+function paintRender(){
+  const cont=document.getElementById('paint-sections-container');
+  if(!cont)return;
+  cont.innerHTML='';
+  PAINT_SEC.forEach((sec,si)=>{
+    const sTotal=paintSecTotal(sec);
+    const card=document.createElement('div');card.className='paint-section-card';
+    let itemsHtml='';
+    sec.items.forEach((item,ii)=>{
+      itemsHtml+=`<div class="paint-item-row">
+        <div class="paint-fg"><label>Description</label><input type="text" value="${xe(item.name)}" oninput="PAINT_SEC[${si}].items[${ii}].name=this.value;savePaintState()"></div>
+        <div class="paint-fg"><label>Cost (₹)</label><input type="number" min="0" value="${item.cost||''}" placeholder="0" oninput="PAINT_SEC[${si}].items[${ii}].cost=+this.value;savePaintState();paintRenderTotals()"></div>
+        <button style="background:#fce8e8;color:var(--red);border:1px solid #f5c6c6;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;align-self:flex-end" onclick="paintRemoveItem(${si},${ii})">✕</button>
+      </div>`;
+    });
+    card.innerHTML=`
+      <div class="paint-section-head">
+        <h2><span class="paint-section-ico">${sec.icon}</span>${sec.label}</h2>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="paint-section-total" id="paint-sec-tot-${si}">${sTotal>0?fmt(sTotal):''}</span>
+          <button onclick="paintRemoveSection(${si})" style="background:#fce8e8;color:var(--red);border:1px solid #f5c6c6;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <div class="paint-section-body">${itemsHtml}
+        <button class="paint-add-btn" onclick="paintAddItem(${si})">+ Add Row</button>
+      </div>
+      ${sTotal>0?`<div class="paint-section-footer">Section Total: ${fmt(sTotal)}</div>`:''}`;
+    cont.appendChild(card);
+  });
+  cont.innerHTML+=`<button class="paint-add-section-btn" onclick="paintAddSection()">🎨 + Add Section</button>`;
+  paintRenderTotals();
+}
+
+function paintRenderTotals(){
+  const grand=paintGrandTotal();
+  // update per-section totals live
+  PAINT_SEC.forEach((sec,si)=>{
+    const el=document.getElementById('paint-sec-tot-'+si);
+    if(el){const st=paintSecTotal(sec);el.textContent=st>0?fmt(st):'';}
+  });
+  const gb=document.getElementById('paint-grand-box');
+  const gv=document.getElementById('paint-grand-val');
+  if(gb){gb.style.display=grand>0?'flex':'none';}
+  if(gv)gv.textContent=fmt(grand);
+  document.getElementById('badge-pt').textContent=fmt(grand);
+  updateBadges();
+}
+
+function paintAddItem(si){PAINT_SEC[si].items.push({name:'New Item',cost:0});savePaintState();paintRender();}
+function paintRemoveItem(si,ii){PAINT_SEC[si].items.splice(ii,1);savePaintState();paintRender();}
+function paintAddSection(){
+  const name=prompt('Enter section name (e.g. Polish, Anti-Damp, Exterior):');if(!name)return;
+  PAINT_SEC.push({id:'ps_'+Date.now(),label:name,icon:'🪣',items:[{name:'Cost',cost:0}]});
+  savePaintState();paintRender();toast(name+' added ✓');
+}
+function paintRemoveSection(si){
+  if(!confirm('Remove "'+PAINT_SEC[si].label+'"?'))return;
+  const n=PAINT_SEC[si].label;PAINT_SEC.splice(si,1);savePaintState();paintRender();toast(n+' removed ✓');
+}
+
+/* Color/Paint cost stored separately — now handled by Painting tab */
+let QT_COLOR={paint:0,primer:0,putty:0,labour:0};
+function qtColorTotal(){return Object.values(QT_COLOR).reduce((a,b)=>a+(+b||0),0)}
+
+function renderQuickTotal(){
+  const eg=eGrandTotal(),fg=fGrandTotal(),pg=popGrandTotal();
+  const paintT=paintGrandTotal();
+  const grand=eg.total+fg.total+pg+paintT;
+
+  // Update badge
+  document.getElementById('badge-qt').textContent=fmt(grand);
+
+  const c=document.getElementById('qt-cards');
+  const items=[
+    {ico:'🏗',label:'POP Ceiling',val:pg,cls:'pop'},
+    {ico:'⚡',label:'Electrical Work',val:eg.total,cls:'elec'},
+    {ico:'🪑',label:'Furniture / Carpentry',val:fg.total,cls:'furn'},
+    {ico:'🎨',label:'Painting Work',val:paintT,cls:'color'},
+  ];
+
+  const colorMap={pop:'var(--pc)',elec:'var(--eg)',furn:'var(--fb)',color:'#9333ea'};
+  let cardsHtml=items.map(item=>`
+    <div class="qt-card ${item.cls}" style="${item.val===0?'opacity:.5':''}">
+      <div class="qt-card-left">
+        <div class="qt-card-ico ${item.cls}">${item.ico}</div>
+        <div class="qt-card-label">${item.label}</div>
+      </div>
+      <div class="qt-card-val ${item.cls}">${item.val>0?fmt(item.val):'₹0'}</div>
+    </div>`).join('');
+
+  cardsHtml+=`<div class="qt-divider"></div>
+    <div class="qt-grand">
+      <div>
+        <div class="qt-grand-label">🏠 Grand Total</div>
+        <div style="font-size:11px;color:var(--fba);margin-top:3px">POP + Electrical + Furniture + Painting</div>
+      </div>
+      <div class="qt-grand-val">${fmt(grand)}</div>
+    </div>
+    <div style="background:var(--card);border-radius:10px;border:1px solid var(--border);padding:14px 16px;margin-bottom:4px">
+      ${items.map(item=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:500">${item.ico} ${item.label}</span>
+          <span style="font-family:'DM Mono',monospace;font-weight:600;color:${colorMap[item.cls]||'var(--text)'};font-size:14px">${item.val>0?fmt(item.val):'—'}</span>
+        </div>`).join('')}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 2px">
+        <span style="font-size:14px;font-weight:700">TOTAL</span>
+        <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:var(--fbd)">${fmt(grand)}</span>
+      </div>
+    </div>`;
+
+  c.innerHTML=cardsHtml;
+}
+
+/* ══════════ POP KEYBOARD NAVIGATION — Tab/Enter moves to next input ══════════ */
+document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key==='Tab')&&!e.shiftKey){
+    const active=document.activeElement;
+    if(!active)return;
+    const popPage=document.getElementById('tab-pop');
+    if(!popPage||!popPage.contains(active))return;
+    if(active.tagName!=='INPUT')return;
+    e.preventDefault();
+    // collect all visible inputs inside pop tab
+    const allInputs=Array.from(popPage.querySelectorAll('input:not([disabled]):not([type="hidden"])'))
+      .filter(el=>el.offsetParent!==null);
+    const idx=allInputs.indexOf(active);
+    if(idx>=0&&idx<allInputs.length-1){
+      allInputs[idx+1].focus();
+      allInputs[idx+1].select();
+    }
+  }
+});
+
+/* ══════════ BADGES ══════════ */
+function updateBadges(){
+  const eg=eGrandTotal();const fg=fGrandTotal();const pg=popGrandTotal();
+  const paintT=paintGrandTotal();
+  const combined=eg.total+fg.total+pg;
+  document.getElementById('badge-e').textContent=fmt(eg.total);
+  document.getElementById('badge-f').textContent=fmt(fg.total);
+  document.getElementById('badge-p').textContent=fmt(pg);
+  document.getElementById('badge-s').textContent=fmt(combined);
+  document.getElementById('total-badge').textContent=fmt(combined+paintT);
+  const ptBadge=document.getElementById('badge-pt');if(ptBadge)ptBadge.textContent=fmt(paintT);
+  const qtBadge=document.getElementById('badge-qt');
+  if(qtBadge)qtBadge.textContent=fmt(combined+paintT);
+}
+
+/* ══════════ COMBINED SUMMARY ══════════ */
+function renderCombinedSummary(){
+  const eg=eGrandTotal(), fg=fGrandTotal(), pg=popGrandTotal(), paintT=paintGrandTotal();
+  const grand=eg.total+fg.total+pg+paintT;
+  let html='';
+
+  /* ── GRAND TOTAL CARD ── */
+  html+=`<div class="grand-box" style="margin-bottom:20px">
+    <h2>💰 Total Estimate</h2>
+    <table class="grand-tbl"><tbody>
+      ${eg.total>0?`<tr><td>⚡ Electrical Work</td><td>${fmt(eg.total)}</td></tr>`:''}
+      ${fg.total>0?`<tr><td>🪑 Furniture / Carpentry</td><td>${fmt(fg.total)}</td></tr>`:''}
+      ${pg>0?`<tr><td>🏗 POP Ceiling</td><td>${fmt(pg)}</td></tr>`:''}
+      ${paintT>0?`<tr><td>🎨 Painting Work</td><td>${fmt(paintT)}</td></tr>`:''}
+      <tr class="gtot"><td>GRAND TOTAL</td><td>${fmt(grand)}</td></tr>
+    </tbody></table>
+  </div>`;
+
+  /* ── ELECTRICAL ── */
+  if(eg.total>0){
+    html+=`<div class="sum-section">
+      <div class="sum-sec-head eg"><h3>⚡ Electrical Work</h3><span class="sec-tot eg">${fmt(eg.total)}</span></div>
+      <table class="sum-tbl"><tbody>`;
+    ES.rooms.forEach(r=>{
+      const t=roomTotal(r.id);if(!t.total)return;
+      html+=`<tr><td>${r.icon} ${r.name}</td><td></td><td>${fmt(t.total)}</td></tr>`;
+    });
+    html+=`<tr style="background:var(--eg2)"><td colspan="2" style="font-weight:600">Total</td><td style="color:var(--eg);font-weight:700;font-family:'DM Mono',monospace">${fmt(eg.total)}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  }
+
+  /* ── FURNITURE ── */
+  if(fg.total>0){
+    html+=`<div class="sum-section">
+      <div class="sum-sec-head"><h3>🪑 Furniture / Carpentry</h3><span class="sec-tot fb">${fmt(fg.total)}</span></div>
+      <table class="sum-tbl"><tbody>`;
+    FS.sections.forEach(sec=>{
+      const st=fsecTotal(sec);if(!st)return;
+      html+=`<tr><td>${sec.icon} ${sec.label}</td><td></td><td>${fmt(st)}</td></tr>`;
+    });
+    if(FS.misc.some(m=>m.qty>0)){
+      html+=`<tr><td>➕ Miscellaneous</td><td></td><td>${fmt(fg.misc)}</td></tr>`;
+    }
+    html+=`<tr style="background:var(--fb2)"><td colspan="2" style="font-weight:600">Total</td><td style="color:var(--fb);font-weight:700;font-family:'DM Mono',monospace">${fmt(fg.total)}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  }
+
+  /* ── POP CEILING ── */
+  if(pg>0){
+    html+=`<div class="sum-section">
+      <div class="sum-sec-head" style="background:var(--pc2)"><h3 style="color:var(--pc)">🏗 POP Ceiling</h3><span class="sec-tot" style="color:var(--pc)">${fmt(pg)}</span></div>
+      <table class="sum-tbl"><tbody>`;
+    PS.rooms.forEach(r=>{
+      const rT=popRoomTotal(r);if(!rT)return;
+      html+=`<tr><td>${r.icon} ${r.name}</td><td></td><td>${fmt(rT)}</td></tr>`;
+    });
+    html+=`<tr style="background:var(--pc2)"><td colspan="2" style="font-weight:600">Total</td><td style="color:var(--pc);font-weight:700;font-family:'DM Mono',monospace">${fmt(pg)}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  }
+
+  /* ── PAINTING ── */
+  if(paintT>0){
+    html+=`<div class="sum-section">
+      <div class="sum-sec-head" style="background:#fff7ed"><h3 style="color:#c2410c">🎨 Painting Work</h3><span class="sec-tot" style="color:#c2410c">${fmt(paintT)}</span></div>
+      <table class="sum-tbl"><tbody>`;
+    PAINT_SEC.forEach(sec=>{
+      const st=paintSecTotal(sec);if(!st)return;
+      html+=`<tr><td>${sec.icon} ${sec.label}</td><td></td><td>${fmt(st)}</td></tr>`;
+    });
+    html+=`<tr style="background:#fff7ed"><td colspan="2" style="font-weight:600">Total</td><td style="color:#c2410c;font-weight:700;font-family:'DM Mono',monospace">${fmt(paintT)}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  }
+
+  document.getElementById('sum-wrap').innerHTML=html||'<div style="padding:40px;text-align:center;color:var(--muted)">No data entered yet. Start by adding items in each tab.</div>';
+}
+
+/* ══════════ EXPORT PDF ══════════ */
+function openExport(){document.getElementById('export-modal').classList.add('open')}
+function closeExport(){document.getElementById('export-modal').classList.remove('open')}
+
+function generatePDF(){
+  const client  =document.getElementById('ex-client').value.trim()||'Client';
+  const address =document.getElementById('ex-address').value.trim()||'—';
+  const company =document.getElementById('ex-company').value.trim()||'';
+  const phone   =document.getElementById('ex-phone').value.trim()||'';
+  const note    =document.getElementById('ex-note').value.trim()||'';
+  const dateStr =new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const eg=eGrandTotal(), fg=fGrandTotal(), pg=popGrandTotal(), paintT=paintGrandTotal();
+  const grand=eg.total+fg.total+pg+paintT;
+
+  /* Build rows for each category */
+  let rows='';
+  let srNo=1;
+
+  // Electrical — per room
+  if(eg.total>0){
+    rows+=`<tr class="cat-head-row"><td colspan="3">⚡ Electrical Work</td><td style="text-align:right;font-weight:700">${fmt(eg.total)}</td></tr>`;
+    ES.rooms.forEach(r=>{
+      const t=roomTotal(r.id);if(!t.total)return;
+      rows+=`<tr><td style="color:#555;padding:4pt 8pt">${srNo++}</td><td style="padding:4pt 8pt">${r.icon} ${r.name}</td><td style="text-align:center;padding:4pt 8pt;color:#888;font-size:8pt">Electrical</td><td style="text-align:right;padding:4pt 8pt;font-weight:600;font-family:'DM Mono',monospace">₹${fmtN(t.total)}</td></tr>`;
+    });
+  }
+
+  // Furniture — per section
+  if(fg.total>0){
+    rows+=`<tr class="cat-head-row"><td colspan="3">🪑 Furniture / Carpentry</td><td style="text-align:right;font-weight:700">${fmt(fg.total)}</td></tr>`;
+    FS.sections.forEach(sec=>{
+      const st=fsecTotal(sec);if(!st)return;
+      rows+=`<tr><td style="color:#555;padding:4pt 8pt">${srNo++}</td><td style="padding:4pt 8pt">${sec.icon} ${sec.label}</td><td style="text-align:center;padding:4pt 8pt;color:#888;font-size:8pt">Furniture</td><td style="text-align:right;padding:4pt 8pt;font-weight:600;font-family:'DM Mono',monospace">₹${fmtN(st)}</td></tr>`;
+    });
+    if(FS.misc.some(m=>m.qty>0)){
+      rows+=`<tr><td style="color:#555;padding:4pt 8pt">${srNo++}</td><td style="padding:4pt 8pt">➕ Miscellaneous</td><td style="text-align:center;padding:4pt 8pt;color:#888;font-size:8pt">Furniture</td><td style="text-align:right;padding:4pt 8pt;font-weight:600;font-family:'DM Mono',monospace">₹${fmtN(fg.misc)}</td></tr>`;
+    }
+  }
+
+  // POP Ceiling — per room
+  if(pg>0){
+    rows+=`<tr class="cat-head-row"><td colspan="3">🏗 POP Ceiling</td><td style="text-align:right;font-weight:700">${fmt(pg)}</td></tr>`;
+    PS.rooms.forEach(r=>{
+      const rT=popRoomTotal(r);if(!rT)return;
+      rows+=`<tr><td style="color:#555;padding:4pt 8pt">${srNo++}</td><td style="padding:4pt 8pt">${r.icon} ${r.name}</td><td style="text-align:center;padding:4pt 8pt;color:#888;font-size:8pt">POP</td><td style="text-align:right;padding:4pt 8pt;font-weight:600;font-family:'DM Mono',monospace">₹${fmtN(rT)}</td></tr>`;
+    });
+  }
+
+  // Painting — per section
+  if(paintT>0){
+    rows+=`<tr class="cat-head-row"><td colspan="3">🎨 Painting Work</td><td style="text-align:right;font-weight:700">${fmt(paintT)}</td></tr>`;
+    PAINT_SEC.forEach(sec=>{
+      const st=paintSecTotal(sec);if(!st)return;
+      rows+=`<tr><td style="color:#555;padding:4pt 8pt">${srNo++}</td><td style="padding:4pt 8pt">${sec.icon} ${sec.label}</td><td style="text-align:center;padding:4pt 8pt;color:#888;font-size:8pt">Painting</td><td style="text-align:right;padding:4pt 8pt;font-weight:600;font-family:'DM Mono',monospace">₹${fmtN(st)}</td></tr>`;
+    });
+  }
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estimate — ${client}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body{font-family:'DM Sans',Arial,sans-serif;font-size:10pt;color:#1a1a1a;background:#fff;padding:12mm 16mm}
+    .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3pt solid #2c2218;padding-bottom:10pt;margin-bottom:14pt}
+    .logo{font-family:'Playfair Display',serif;font-size:18pt;font-weight:700;color:#2c2218}
+    .logo-sub{font-size:9pt;color:#888;margin-top:2pt}
+    .inv{text-align:right;font-size:9pt;color:#555}
+    .inv-num{font-size:13pt;font-weight:700;color:#1a1a1a;margin-bottom:2pt}
+    .parties{display:grid;grid-template-columns:1fr 1fr;gap:12pt;margin-bottom:16pt}
+    .pbox{background:#f8f6f2;border-radius:5pt;padding:10pt 12pt;border-left:3pt solid #2c2218}
+    .plbl{font-size:7.5pt;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4pt}
+    .pname{font-size:12pt;font-weight:600}
+    .psub{font-size:8.5pt;color:#666;margin-top:2pt}
+    .est-table{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:20pt}
+    .est-table th{background:#2c2218;color:#c49a6c;padding:6pt 8pt;text-align:left;font-size:9pt;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .est-table th:last-child{text-align:right}
+    .est-table td{border-bottom:.5pt solid #eee}
+    .est-table tr:last-child td{border-bottom:none}
+    .cat-head-row td{background:#f4f2ed;font-weight:700;font-size:10pt;padding:7pt 8pt;border-top:1pt solid #ddd;border-bottom:.5pt solid #ddd;color:#2c2218}
+    .grand-row{background:#2c2218;color:#fff}
+    .grand-row td{padding:9pt 8pt;font-size:12pt;font-weight:700;border:none}
+    .grand-row td:last-child{text-align:right;font-family:'DM Mono',monospace;font-size:14pt}
+    .note-box{background:#fffbf0;border:1pt solid #f0e0b0;border-radius:5pt;padding:8pt 10pt;font-size:9pt;color:#665500;margin-bottom:16pt}
+    .sign-area{margin-top:32pt;display:flex;justify-content:space-between}
+    .sign-box{text-align:center;width:36%}
+    .sign-line{border-top:1pt solid #999;padding-top:5pt;font-size:8.5pt;color:#666}
+    .footer{margin-top:18pt;padding-top:7pt;border-top:1pt solid #ddd;display:flex;justify-content:space-between;font-size:8pt;color:#bbb}
+    @media print{body{padding:8mm 10mm}@page{size:A4;margin:6mm}}
+  </style></head><body>
+  <div class="top">
+    <div>
+      <div class="logo">🏠 ${company||'Interior Works'}</div>
+      <div class="logo-sub">Home Interior Cost Estimate</div>
+      ${phone?`<div style="font-size:8.5pt;color:#555;margin-top:3pt">📞 ${phone}</div>`:''}
+    </div>
+    <div class="inv">
+      <div class="inv-num">ESTIMATE</div>
+      <div>Date: ${dateStr}</div>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div class="pbox">
+      <div class="plbl">Bill To / Client</div>
+      <div class="pname">${xe(client)}</div>
+      <div class="psub">${xe(address)}</div>
+    </div>
+    <div class="pbox">
+      <div class="plbl">Prepared By</div>
+      <div class="pname">${xe(company||'—')}</div>
+      ${phone?`<div class="psub">📞 ${xe(phone)}</div>`:''}
+    </div>
+  </div>
+
+  ${note?`<div class="note-box"><strong>📋 Notes / Terms:</strong> ${xe(note)}</div>`:''}
+
+  <table class="est-table">
+    <thead><tr>
+      <th style="width:32pt">#</th>
+      <th>Work Description</th>
+      <th style="width:70pt;text-align:center">Category</th>
+      <th style="width:80pt">Amount (₹)</th>
+    </tr></thead>
+    <tbody>
+      ${rows}
+      <tr class="grand-row">
+        <td colspan="3">GRAND TOTAL</td>
+        <td>₹${fmtN(grand)}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sign-area">
+    <div class="sign-box"><div class="sign-line">Client Signature<br>${xe(client)}</div></div>
+    <div class="sign-box"><div class="sign-line">Authorised Signatory<br>${xe(company||'Contractor')}</div></div>
+  </div>
+  <div class="footer"><span>Generated by Home Cost Estimator</span><span>${dateStr}</span></div>
+  <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`;
+
+  const win=window.open('','_blank','width=960,height=720');
+  win.document.write(html);win.document.close();
+  closeExport();toast('PDF ready — Print → Save as PDF');
+}
+
+/* ══════════ PROJECT MANAGEMENT ══════════ */
+const PROJ_KEY='hce_projects';
+const PROJ_ACTIVE_KEY='hce_active_proj';
+
+function defaultProject(name){
+  return{
+    id:'proj_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),
+    name:name||'Project 1',
+    eState:{catalog:dc(DEF_CAT),rooms:dc(DEF_ROOMS),qty:{},ptRate:500,active:'living'},
+    fState:{sections:dc(F_DEFS),misc:[
+      {label:'Safety Gate CNC + Transport',qty:0,rate:3500},
+      {label:'Door Laminate + Lock',qty:0,rate:5500},
+      {label:'Mirror for Dressing Table',qty:0,rate:1800},
+    ]},
+    pState:{rooms:dc(POP_DEF_ROOMS),rate:65}
+  };
+}
+
+function loadProjects(){
+  try{
+    const raw=localStorage.getItem(PROJ_KEY);
+    if(raw){const p=JSON.parse(raw);if(p&&p.length)return p;}
+  }catch(e){}
+  const def=defaultProject('Project 1');
+  saveProjects([def]);
+  return[def];
+}
+function saveProjects(list){localStorage.setItem(PROJ_KEY,JSON.stringify(list))}
+function getActiveId(){return localStorage.getItem(PROJ_ACTIVE_KEY)||PROJECTS[0]?.id}
+function setActiveId(id){localStorage.setItem(PROJ_ACTIVE_KEY,id)}
+
+let PROJECTS=loadProjects();
+let ACTIVE_PROJ_ID=getActiveId();
+if(!PROJECTS.find(p=>p.id===ACTIVE_PROJ_ID)) ACTIVE_PROJ_ID=PROJECTS[0].id;
+
+function currentProject(){return PROJECTS.find(p=>p.id===ACTIVE_PROJ_ID)||PROJECTS[0]}
+
+/* Load active project's data into ES / FS */
+function loadProjectData(){
+  const proj=currentProject();
+  ES=proj.eState?dc(proj.eState):{catalog:dc(DEF_CAT),rooms:dc(DEF_ROOMS),qty:{},ptRate:500,active:'living'};
+  if(!ES.rooms.find(r=>r.id===ES.active))ES.active=ES.rooms[0]?.id||'';
+  FS=proj.fState?dc(proj.fState):{sections:dc(F_DEFS),misc:[]};
+  PS=proj.pState?dc(proj.pState):{rooms:dc(POP_DEF_ROOMS),rate:65,runFtRate:120};
+  PAINT_SEC=proj.paintState?dc(proj.paintState):dc(PAINT_DEF_SECTIONS);
+  if(!PS.runFtRate)PS.runFtRate=120;
+  if(document.getElementById('pop_rate'))document.getElementById('pop_rate').value=PS.rate||65;
+  if(document.getElementById('pop_runft_rate'))document.getElementById('pop_runft_rate').value=PS.runFtRate||120;
+}
+
+/* Save current ES/FS back into the active project */
+function saveCurrentProject(){
+  const proj=currentProject();
+  proj.eState=dc(ES);proj.fState=dc(FS);proj.pState=dc(PS);proj.paintState=dc(PAINT_SEC);
+  saveProjects(PROJECTS);
+}
+
+/* Override saveEState and saveFState to also persist to project */
+const _origSaveP=savePState;
+function savePState(){
+  localStorage.setItem('hpop_rms',JSON.stringify(PS.rooms));
+  localStorage.setItem('hpop_rate',JSON.stringify(PS.rate));
+  localStorage.setItem('hpop_runft_rate',JSON.stringify(PS.runFtRate));
+  saveCurrentProject();
+}
+function saveEState(){
+  localStorage.setItem('hee_cat',JSON.stringify(ES.catalog));
+  localStorage.setItem('hee_rms',JSON.stringify(ES.rooms));
+  localStorage.setItem('hee_qty',JSON.stringify(ES.qty));
+  localStorage.setItem('hee_ptr',JSON.stringify(ES.ptRate));
+  localStorage.setItem('hee_act',ES.active);
+  saveCurrentProject();
+}
+function saveFState(){
+  localStorage.setItem('hf_sec',JSON.stringify(FS.sections));
+  localStorage.setItem('hf_misc',JSON.stringify(FS.misc));
+  saveCurrentProject();
+}
+
+function renderProjBar(){
+  const bar=document.getElementById('proj-bar');
+  let html=PROJECTS.map(p=>`
+    <button class="proj-tab ${p.id===ACTIVE_PROJ_ID?'active':''}" onclick="switchProject('${p.id}')">
+      ${xe(p.name)}
+      ${PROJECTS.length>1?`<span class="proj-del" onclick="deleteProject(event,'${p.id}')">✕</span>`:''}
+    </button>`).join('');
+  html+=`<button class="proj-add" onclick="openNewProject()" title="New project">＋</button>`;
+  bar.innerHTML=html;
+}
+
+function switchProject(id){
+  // save current first
+  saveCurrentProject();
+  ACTIVE_PROJ_ID=id;setActiveId(id);
+  loadProjectData();
+  renderProjBar();
+  eRender();fRender();popRender();paintRender();updateBadges();
+  if(activeTabId==='summ')renderCombinedSummary();
+  toast('Switched to '+currentProject().name);
+}
+
+function deleteProject(event,id){
+  event.stopPropagation();
+  const proj=PROJECTS.find(p=>p.id===id);
+  if(!confirm(`Delete project "${proj?.name}"?\n\nAll data for this project will be lost.`))return;
+  PROJECTS=PROJECTS.filter(p=>p.id!==id);
+  if(ACTIVE_PROJ_ID===id) ACTIVE_PROJ_ID=PROJECTS[0].id;
+  setActiveId(ACTIVE_PROJ_ID);saveProjects(PROJECTS);
+  loadProjectData();renderProjBar();eRender();fRender();popRender();paintRender();updateBadges();
+  toast(proj?.name+' deleted');
+}
+
+let projModalMode='new',projModalEditId='';
+function openNewProject(){
+  projModalMode='new';
+  document.getElementById('proj-modal-title').textContent='New Project';
+  document.getElementById('proj-name-input').value='Project '+(PROJECTS.length+1);
+  document.getElementById('proj-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('proj-name-input').select(),100);
+}
+function openRenameProject(id){
+  projModalMode='rename';projModalEditId=id;
+  const proj=PROJECTS.find(p=>p.id===id);
+  document.getElementById('proj-modal-title').textContent='Rename Project';
+  document.getElementById('proj-name-input').value=proj?.name||'';
+  document.getElementById('proj-modal').classList.add('open');
+}
+function closeProjModal(){document.getElementById('proj-modal').classList.remove('open')}
+function saveProjModal(){
+  const name=document.getElementById('proj-name-input').value.trim();
+  if(!name){toast('Enter a project name');return}
+  if(projModalMode==='new'){
+    saveCurrentProject();// save current before creating
+    const np=defaultProject(name);
+    PROJECTS.push(np);
+    ACTIVE_PROJ_ID=np.id;setActiveId(np.id);
+    saveProjects(PROJECTS);loadProjectData();
+    renderProjBar();eRender();fRender();popRender();paintRender();updateBadges();
+    toast(name+' created ✓');
+  }else{
+    const proj=PROJECTS.find(p=>p.id===projModalEditId);
+    if(proj){proj.name=name;saveProjects(PROJECTS);renderProjBar();}
+    toast('Renamed ✓');
+  }
+  closeProjModal();
+}
+
+/* ══════════ RESET ══════════ */
+function resetAll(){
+  const what=activeTabId;
+  if(what==='elec'){if(!confirm('Reset all electrical quantities for this project?'))return;ES.qty={};saveEState();eRender();}
+  else if(what==='furn'){if(!confirm('Reset furniture to defaults for this project?'))return;FS={sections:dc(F_DEFS),misc:[{label:'Safety Gate CNC + Transport',qty:0,rate:3500},{label:'Door Laminate + Lock',qty:0,rate:5500},{label:'Mirror for Dressing Table',qty:0,rate:1800}]};saveFState();fRender();}
+  else if(what==='paint'){if(!confirm('Reset painting costs?'))return;PAINT_SEC=dc(PAINT_DEF_SECTIONS);savePaintState();paintRender();}
+  else if(what==='pop'){if(!confirm('Reset POP ceiling to defaults for this project?'))return;PS={rooms:dc(POP_DEF_ROOMS),rate:65,runFtRate:120};savePState();if(document.getElementById('pop_rate'))document.getElementById('pop_rate').value=65;if(document.getElementById('pop_runft_rate'))document.getElementById('pop_runft_rate').value=120;popRender();}
+  else{if(!confirm('Reset ALL data for this project?'))return;ES.qty={};saveEState();FS={sections:dc(F_DEFS),misc:[]};saveFState();PS={rooms:dc(POP_DEF_ROOMS),rate:65,runFtRate:120};savePState();PAINT_SEC=dc(PAINT_DEF_SECTIONS);savePaintState();eRender();fRender();popRender();paintRender();}
+  toast('Reset ✓');
+}
+
+['manage-modal','add-item-modal','room-modal','export-modal','fsec-modal','proj-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)document.getElementById(id).classList.remove('open')});
+});
+
+if(window.innerWidth<=768){
+  document.getElementById('bot-nav').style.display='flex';
+  document.getElementById('total-badge').style.display='block';
+}else if(window.innerWidth<=1024){
+  document.getElementById('bot-nav').style.display='flex';
+}
+
+/* ── One-time clear: zeroed defaults version ── */
+(function(){
+  const VER='hce_v_zero1';
+  if(!localStorage.getItem(VER)){
+    ['hee_cat','hee_rms','hee_qty','hee_ptr','hee_act',
+     'hf_sec','hf_misc','hpop_rms','hpop_rate',
+     'hce_projects','hce_active_proj'].forEach(k=>localStorage.removeItem(k));
+    localStorage.setItem(VER,'1');
+  }
+})();
+
+loadProjectData();
+renderProjBar();
+eRender();
+fRender();
+popRender();
+updateBadges();
+</script>
+</body>
+</html>
